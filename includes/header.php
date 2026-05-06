@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DTI Region IX - Admin Panel</title>
+    <link href="../assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../assets/bootstrap/icons/bootstrap-icons.css">
+    <link type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/overlayscrollbars/2.3.0/styles/overlayscrollbars.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --dti-blue: #0F172A; 
+            --sidebar-width: 195px;
+            --sidebar-collapsed: 75px;
+            --navbar-height: 70px;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #e0e7ff 0%, #f1f5f9 50%, #ffe4e6 100%);
+            background-attachment: fixed;
+            font-family: 'Inter', sans-serif !important;
+            letter-spacing: -0.01em;
+            overflow-x: hidden;
+        }
+
+        .top-navbar {
+            height: var(--navbar-height);
+            position: fixed;
+            top: 0;
+            right: 0;
+            left: 0;
+            z-index: 1050;
+            background: rgba(255, 255, 255, 0.7) !important;
+            backdrop-filter: blur(12px) saturate(150%);
+            -webkit-backdrop-filter: blur(12px) saturate(150%);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 1.5rem;
+        }
+
+       .sidebar {
+            position: fixed;
+            top: var(--navbar-height);
+            bottom: 0;
+            left: 0;
+            z-index: 1040;
+            width: var(--sidebar-width);
+            
+            background: linear-gradient(180deg, rgba(5, 10, 20, 0.98) 0%, rgba(15, 23, 42, 0.92) 100%);
+            backdrop-filter: blur(15px) saturate(150%);
+            -webkit-backdrop-filter: blur(15px) saturate(150%);
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+
+            
+            padding-top: 1rem;
+            overflow-x: hidden;
+            white-space: nowrap;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .sidebar-link {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            transition: all 0.2s;
+            font-size: 1.05rem;
+            border-left: 4px solid transparent; 
+        }
+        
+        .sidebar-link i {
+            font-size: 1.3rem;
+            min-width: 30px;
+            margin-right: 15px;
+            text-align: center;
+        }
+        
+        .sidebar-link:hover {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-link.active {
+            color: #ffffff;
+            background-color: rgba(255, 255, 255, 0.15);
+            border-left: 4px solid #ffffff;
+            box-shadow: inset 4px 0 0px rgba(255, 255, 255, 0.2);
+        }
+
+        .main-content {
+            margin-left: var(--sidebar-width);
+            margin-top: var(--navbar-height);
+            min-height: calc(100vh - var(--navbar-height));
+            transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 20px;
+        }
+
+        body.sidebar-collapsed .sidebar { width: var(--sidebar-collapsed); }
+        body.sidebar-collapsed .main-content { margin-left: var(--sidebar-collapsed); }
+        body.sidebar-collapsed .sidebar-text { display: none; }
+
+        /* burger */
+        #sidebarToggle {
+            cursor: pointer;
+            border-radius: 50%;
+            margin-left: -6px;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+        /* Make hover state translucent to match glass */
+        #sidebarToggle:hover { background-color: rgba(0, 0, 0, 0.05); }
+
+        /* Make profile button match glass */
+        .profile-dropdown-btn:hover .rounded-circle {
+            background-color: rgba(0, 0, 0, 0.05) !important;
+        }
+        .rounded-circle.bg-light {
+            background-color: rgba(255, 255, 255, 0.5) !important;
+            backdrop-filter: blur(5px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px); 
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0); 
+            }
+        }
+
+        .page-transition {
+            animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .card-gradient-primary {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+        }
+        .card-gradient-success {
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%) !important;
+        }
+        .card-gradient-warning {
+            background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%) !important;
+        }
+
+        .stat-icon-wrapper {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .filter-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            color: #64748b; 
+            font-weight: 700;
+            margin-bottom: 0.4rem;
+        }
+
+        .filter-input {
+            background-color: rgba(255, 255, 255, 0.6) !important;
+            border: 1px solid rgba(15, 23, 42, 0.1) !important; 
+            border-radius: 8px; 
+            color: #0F172A !important;
+            font-weight: 500;
+            padding: 0.5rem 0.75rem;
+            transition: all 0.2s ease;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
+        }
+
+        .filter-input:focus {
+            background-color: #ffffff !important;
+            border-color: #3b82f6 !important; 
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15) !important;
+            outline: none;
+        }
+        
+        /* Make the select dropdowns look matching */
+        select.filter-input {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-navbar">
+        <div class="d-flex align-items-center">
+            <div id="sidebarToggle" class="me-2">
+                <i class="bi bi-list fs-3 text-dark"></i>
+            </div>
+            
+            <div class="d-flex align-items-center ms-2">
+                <!-- <img src="../assets/img/logo.png" alt="DTI Logo" style="height: 40px; margin-right: 12px;"> -->
+                <!-- <h1 class="fw-bold fs-5 text-dark letter" style="font-weight: 900 !important; margin-top: 0.5rem;"> DTI IX - Regional Office IX</h1> -->
+            </div>
+        </div>
+        
+        <div class="dropdown">
+            <div class="d-flex align-items-center profile-dropdown-btn" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                <div class="text-end me-3 d-none d-sm-block">
+                    <div class="fw-bold text-dark" style="font-size: 0.95rem; line-height: 1.2;">
+                        <?php echo htmlspecialchars($_SESSION['admin_name']); ?>
+                    </div>
+                    <div class="text-muted small" style="font-size: 0.65rem;">System Administrator</div>
+                </div>
+                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center transition-all" style="width: 40px; height: 40px; border: 1px solid #e2e8f0;">
+                    <i class="bi bi-person-fill text-secondary fs-5"></i>
+                </div>
+            </div>
+            
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="profileDropdown">
+                <li><h6 class="dropdown-header text-uppercase small fw-bold text-muted">Account Management</h6></li>
+                <li><a class="dropdown-item py-2" href="account_settings.php"><i class="bi bi-gear me-2 text-muted"></i> Account Settings</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item py-2 text-danger fw-bold" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Secure Logout</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <nav class="sidebar">
+        <div class="d-flex flex-column h-100">
+            <?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
+            
+            <a href="dashboard.php" class="sidebar-link <?php echo ($currentPage == 'dashboard.php') ? 'active' : ''; ?>">
+                <i class="bi bi-grid-1x2-fill"></i> <span class="sidebar-text">Dashboard</span>
+            </a>
+            
+            <a href="add_employee.php" class="sidebar-link <?php echo ($currentPage == 'add_employee.php') ? 'active' : ''; ?>">
+                <i class="bi bi-person-plus-fill"></i> <span class="sidebar-text">Add Profile</span>
+            </a>
+            
+            <a href="manage_employees.php" class="sidebar-link <?php echo ($currentPage == 'manage_employees.php' || $currentPage == 'view_employee.php' || $currentPage == 'edit_employee.php' || $currentPage == 'recycle_bin.php') ? 'active' : ''; ?>">
+                <i class="bi bi-people-fill"></i> <span class="sidebar-text">Manage</span>
+            </a>
+            
+            </div>
+    </nav>
+
+    <script>
+    
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const body = document.body;
+
+        if (localStorage.getItem('sidebar-state') === 'collapsed') {
+            body.classList.add('sidebar-collapsed');
+        }
+
+        sidebarToggle.addEventListener('click', () => {
+            body.classList.toggle('sidebar-collapsed');
+            
+            if (body.classList.contains('sidebar-collapsed')) {
+                localStorage.setItem('sidebar-state', 'collapsed');
+            } else {
+                localStorage.setItem('sidebar-state', 'expanded');
+            }
+            
+        });
+    </script>
+
+    <main class="main-content page-transition">

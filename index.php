@@ -32,21 +32,21 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
             margin: 0;
         }
 
-        /* Light Hybrid Glass Card */
+    
         .glass-card {
-            background: rgba(255, 255, 255, 0.6) !important; /* Light transparent white */
+            background: rgba(255, 255, 255, 0.6) !important; 
             backdrop-filter: blur(16px) saturate(180%);
             -webkit-backdrop-filter: blur(16px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.8) !important;
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06); /* Soft shadow */
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.06); 
             border-radius: 1.25rem;
-            color: #0F172A; /* Dark text for perfect readability */
+            color: #0F172A; 
             width: 100%;
             max-width: 420px;
             padding: 2.5rem 2.5rem;
         }
 
-        /* Inputs that contrast with the light glass */
+
         .glass-input {
             background: rgba(255, 255, 255, 0.7) !important;
             border: 1px solid rgba(255, 255, 255, 0.9) !important;
@@ -66,7 +66,7 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
             color: #64748b;
         }
 
-        /* Dark Button for Contrast */
+   
         .btn-hybrid {
             background-color: #0F172A;
             color: white;

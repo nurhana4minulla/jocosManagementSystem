@@ -12,12 +12,19 @@ $conn = $db->getConnection();
 $totalRes = $conn->query("SELECT COUNT(*) as count FROM employees WHERE is_deleted = 0");
 $total_personnel = $totalRes->fetch_assoc()['count'];
 
-// JO/COS Breakdown
+// JO/COS Breakdown 
 $typeRes = $conn->query("
     SELECT h.employment_type, COUNT(DISTINCT e.employee_id) as count 
     FROM employees e 
-    LEFT JOIN employment_history h ON e.employee_id = h.employee_id 
-    WHERE e.is_deleted = 0 AND h.employment_type IS NOT NULL
+    INNER JOIN (
+        SELECT h1.* FROM employment_history h1
+        INNER JOIN (SELECT employee_id, MAX(start_date) as max_start FROM employment_history GROUP BY employee_id) h2 
+        ON h1.employee_id = h2.employee_id AND h1.start_date = h2.max_start
+    ) h ON e.employee_id = h.employee_id 
+    WHERE e.is_deleted = 0 
+      AND h.employment_type IS NOT NULL
+      AND h.start_date <= CURDATE() 
+      AND (h.end_date IS NULL OR h.end_date = '' OR h.end_date = '0000-00-00' OR h.end_date >= CURDATE())
     GROUP BY h.employment_type
 ");
 $jo_count = 0; $cos_count = 0;
@@ -82,12 +89,20 @@ while($row = $eduRes->fetch_assoc()) {
     }
 }
 
-// JO/COS per Office
+// JO/COS per Office 
 $officeTypeRes = $conn->query("
     SELECT h.office_assignment, h.employment_type, COUNT(DISTINCT e.employee_id) as count 
     FROM employees e 
-    JOIN employment_history h ON e.employee_id = h.employee_id 
-    WHERE e.is_deleted = 0 AND h.office_assignment IS NOT NULL AND h.employment_type IS NOT NULL
+    INNER JOIN (
+        SELECT h1.* FROM employment_history h1
+        INNER JOIN (SELECT employee_id, MAX(start_date) as max_start FROM employment_history GROUP BY employee_id) h2 
+        ON h1.employee_id = h2.employee_id AND h1.start_date = h2.max_start
+    ) h ON e.employee_id = h.employee_id 
+    WHERE e.is_deleted = 0 
+      AND h.office_assignment IS NOT NULL 
+      AND h.employment_type IS NOT NULL
+      AND h.start_date <= CURDATE() 
+      AND (h.end_date IS NULL OR h.end_date >= CURDATE())
     GROUP BY h.office_assignment, h.employment_type
     ORDER BY h.office_assignment ASC
 ");

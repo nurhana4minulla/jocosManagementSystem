@@ -23,9 +23,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $is_valid = false;
 
         if (strlen($db_hash) === 32 && md5($password) === $db_hash) {
-            $is_valid = true; // It's an old MD5 password
+            $is_valid = true; 
         } else if (password_verify($password, $db_hash)) {
-            $is_valid = true; // It's a new, highly secure password
+            $is_valid = true; 
         }
         
         if ($is_valid) {

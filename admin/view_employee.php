@@ -103,9 +103,9 @@ $age = $now->diff($dob)->y;
                 $today = date('Y-m-d');
                 $is_active = false;
                 
-                // Active if: Start date has passed AND (End date is empty OR End date is in the future)
                 if ($current_contract && !empty($current_contract['start_date'])) {
-                    if ($today >= $current_contract['start_date'] && (empty($current_contract['end_date']) || $today <= $current_contract['end_date'])) {
+                    $is_present = empty($current_contract['end_date']) || $current_contract['end_date'] === '0000-00-00';
+                    if ($today >= $current_contract['start_date'] && ($is_present || $today <= $current_contract['end_date'])) {
                         $is_active = true;
                     }
                 }
@@ -266,7 +266,16 @@ $age = $now->diff($dob)->y;
                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Educational Background</h6>
                         <div class="table-responsive mb-4">
                             <table class="table table-bordered table-sm small">
-                                <thead class="bg-light"><tr><th>Level</th><th>School Name</th><th>Degree/Course</th><th>Inclusive Dates</th><th>Year Grad.</th></tr></thead>
+                                <thead class="bg-light">
+                                    <tr>
+                                        <th>Level</th>
+                                        <th>School Name</th>
+                                        <th>Degree/Course</th>
+                                        <th>Inclusive Dates</th>
+                                        <th>Year Grad.</th>
+                                        <th>Honors / Scholarships</th>
+                                    </tr>
+                                </thead>
                                 <tbody>
                                     <?php if(count($education) > 0): ?>
                                         <?php foreach($education as $e): ?>
@@ -284,21 +293,30 @@ $age = $now->diff($dob)->y;
                                                     ?>
                                                 </td>
                                                 <td>
-                                                        <?php 
-                                                        if ($e['is_graduated']) {
-                                                            echo htmlspecialchars($e['year_graduated']);
-                                                        } else {
-                                                            echo '<span class="text-warning fw-bold">Undergrad</span>';
-                                                            if (!empty($e['highest_level_units'])) {
-                                                                echo '<br><small class="text-muted">' . htmlspecialchars($e['highest_level_units']) . '</small>';
-                                                            }
+                                                    <?php 
+                                                    if ($e['is_graduated']) {
+                                                        echo htmlspecialchars($e['year_graduated']);
+                                                    } else {
+                                                        echo '<span class="text-warning fw-bold">Undergrad</span>';
+                                                        if (!empty($e['highest_level_units'])) {
+                                                            echo '<br><small class="text-muted">' . htmlspecialchars($e['highest_level_units']) . '</small>';
                                                         }
-                                                        ?>
-                                                    </td>
+                                                    }
+                                                    ?>
+                                                </td>
+                                                <td>
+                                                    <?php 
+                                                    if (!empty($e['academic_honors'])) {
+                                                        echo '<span class="badge bg-success bg-opacity-10 text-success fw-bold border border-success border-opacity-25">' . htmlspecialchars($e['academic_honors']) . '</span>';
+                                                    } else {
+                                                        echo '<span class="text-muted">N/A</span>';
+                                                    }
+                                                    ?>
+                                                </td>
                                             </tr>
                                         <?php endforeach; ?>
                                     <?php else: ?>
-                                        <tr><td colspan="5" class="text-center text-muted">No education records found.</td></tr>
+                                        <tr><td colspan="6" class="text-center text-muted">No education records found.</td></tr>
                                     <?php endif; ?>
                                 </tbody>
                             </table>
@@ -333,15 +351,17 @@ $age = $now->diff($dob)->y;
                             <table class="table table-bordered table-sm small">
                                 <thead class="bg-light"><tr><th>Inclusive Dates</th><th>Position Title</th><th>Department / Agency (Office Assignment)</th><th>Type</th><th>Salary</th></tr></thead>
                                 <tbody>
-                                    <?php if(count($work) > 0): ?>
+                                   <?php if(count($work) > 0): ?>
                                         <?php 
                                         $today = date('Y-m-d');
                                         foreach($work as $w): 
-                                            // Highlight as current if started and (end date is empty OR end date is future/today)
-                                            $is_current = (!empty($w['start_date']) && $today >= $w['start_date'] && (empty($w['end_date']) || $today <= $w['end_date']));
+                                            $is_present = empty($w['end_date']) || $w['end_date'] === '0000-00-00';
                                             
-                                            // Format the end date or show "Present"
-                                            $display_end = !empty($w['end_date']) ? date('M d, Y', strtotime($w['end_date'])) : '<span class="text-success fw-bold">Present</span>';
+                                            // Highlight as current if started and (end date is empty OR end date is future/today)
+                                            $is_current = (!empty($w['start_date']) && $today >= $w['start_date'] && ($is_present || $today <= $w['end_date']));
+                                            
+                                            // Format the end date or beautifully show "Present"
+                                            $display_end = !$is_present ? date('M d, Y', strtotime($w['end_date'])) : '<span class="text-success fw-bold">Present</span>';
                                         ?>
                                             <tr class="<?php echo $is_current ? 'table-primary bg-opacity-10' : ''; ?>">
                                                 <td class="text-nowrap">

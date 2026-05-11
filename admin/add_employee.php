@@ -16,7 +16,7 @@ if (isset($_GET['draft_id'])) {
     $stmt->execute();
     $res = $stmt->get_result();
     if ($row = $res->fetch_assoc()) {
-        $draft_json = $row['form_data']; // Grab the JSON text string
+        $draft_json = $row['form_data']; 
     }
 }
 ?>
@@ -50,7 +50,7 @@ if (isset($_GET['draft_id'])) {
                                 <div class="col-md-9">
                                     <h6 class="fw-bold mb-3 border-bottom pb-2">Basic Information</h6>
                                     <div class="row g-3">
-                                        <div class="col-md-4"><label class="form-label small fw-bold">Office ID No. <span class="text-muted fw-normal" style="font-size: 0.7rem;">(N/A if not applicable)</span> <span class="text-danger">*</span></label><input type="text" name="office_id" class="form-control" required></div>
+                                        <div class="col-md-4"><label class="form-label small fw-bold" placeholder="Leave blank or N/A if none">Office ID No. <span class="text-muted fw-normal" style="font-size: 0.7rem;">leave blank or N/A if none</span> </label><input type="text" name="office_id" class="form-control" ></div>
                                         <div class="col-md-4"><label class="form-label small fw-bold">First Name <span class="text-danger">*</span></label><input type="text" name="first_name" class="form-control" required></div>
                                         <div class="col-md-4"><label class="form-label small fw-bold">Last Name <span class="text-danger">*</span></label><input type="text" name="last_name" class="form-control" required></div>
                                         <div class="col-md-4"><label class="form-label small fw-bold">Middle Name</label><input type="text" name="middle_name" class="form-control"></div>
@@ -121,7 +121,7 @@ if (isset($_GET['draft_id'])) {
 
                             <h6 class="fw-bold mt-4 mb-3 border-bottom pb-2">Contact & Address</h6>
                             <div class="row g-3">
-                                <div class="col-md-4"><label class="form-label small fw-bold">Contact Number <span class="text-danger">*</span></label><input type="text" name="contact_number" class="form-control" pattern="[0-9]+" title="Please enter numbers only" required></div>
+                                <div class="col-md-4"><label class="form-label small fw-bold">Contact Number <span class="text-danger">*</span></label><input type="text" name="contact_number" class="form-control"  title="Please enter numbers only" required></div>
                                 <div class="col-md-4"><label class="form-label small fw-bold">Email Address</label><input type="email" name="email" class="form-control"></div>
                                 <div class="col-md-4"><label class="form-label small fw-bold">Blood Type</label><input type="text" name="blood_type" class="form-control"></div>
 
@@ -154,10 +154,10 @@ if (isset($_GET['draft_id'])) {
                         </div>
 
                         <div class="form-step d-none" id="S2">
-                            <h6 class="fw-bold mb-3 border-bottom pb-2">Emergency Contact <span class="text-danger">*</span></h6>
+                            <label class="form-label small fw-bold">Emergency Contact </label>
                             <div class="row g-3 mb-4">
-                                <div class="col-md-6"><label class="form-label small fw-bold">Name</label><input type="text" name="emergency_contact_name" class="form-control" required></div>
-                                <div class="col-md-6"><label class="form-label small fw-bold">Number</label><input type="text" name="emergency_contact_number" class="form-control" required></div>
+                                <div class="col-md-6"><label class="form-label small fw-bold">Name</label><input type="text" name="emergency_contact_name" class="form-control" ></div>
+                                <div class="col-md-6"><label class="form-label small fw-bold">Number</label><input type="text" name="emergency_contact_number" class="form-control" ></div>
                             </div>
 
                             <h6 class="fw-bold mb-3 border-bottom pb-2">Parents & Spouse (Optional)</h6>
@@ -208,10 +208,12 @@ if (isset($_GET['draft_id'])) {
                                         <div class="col-md-3"><label class="form-label small fw-bold">School Name <span class="text-danger">*</span></label><input type="text" name="school_name[]" class="form-control form-control-sm" required></div>
                                         <div class="col-md-3"><label class="form-label small fw-bold">Degree / Course</label><input type="text" name="degree_course[]" class="form-control form-control-sm" placeholder="e.g. High School"></div>
                                         <div class="col-md-3"><label class="form-label small fw-bold">From (Year)</label><input type="text" name="start_year[]" class="form-control form-control-sm" maxlength="4" placeholder="YYYY"></div>
+                                        
                                         <div class="col-md-3"><label class="form-label small fw-bold">To (Year)</label><input type="text" name="end_year[]" class="form-control form-control-sm" maxlength="4" placeholder="YYYY"></div>
-                                        <div class="col-md-2"><label class="form-label small fw-bold">Graduated?</label><select name="is_graduated[]" class="form-select form-select-sm grad-select" onchange="toggleGradFields(this)"><option value="1">Yes</option><option value="0">No</option></select></div>
-                                        <div class="col-md-2"><label class="form-label small fw-bold">Year Grad.</label><input type="text" name="year_graduated[]" class="form-control form-control-sm year-grad-input" maxlength="4" placeholder="YYYY"></div>
-                                        <div class="col-md-3"><label class="form-label small fw-bold">Highest Units</label><input type="text" name="highest_level_units[]" class="form-control form-control-sm units-input"></div>
+                                        <div class="col-md-2"><label class="form-label small fw-bold">Graduated?</label><select name="is_graduated[]" class="form-select form-select-sm grad-select" onchange="checkGradStatus(this)"><option value="1">Yes</option><option value="0">No</option></select></div>
+                                        <div class="col-md-2"><label class="form-label small fw-bold">Year Grad.</label><input type="text" name="year_graduated[]" class="form-control form-control-sm y-grad-input" maxlength="4" placeholder="YYYY"></div>
+                                        <div class="col-md-2"><label class="form-label small fw-bold">Highest Units</label><input type="text" name="highest_level_units[]" class="form-control form-control-sm units-input" placeholder="N/A" readonly style="background-color: #e9ecef;"></div>
+                                        <div class="col-md-3"><label class="form-label small fw-bold">Academic Honors</label><input type="text" name="academic_honors[]" class="form-control form-control-sm" placeholder="e.g. Cum Laude"></div>
                                     </div>
                                 </div>
                             </div>
@@ -245,7 +247,7 @@ if (isset($_GET['draft_id'])) {
                                             <input type="text" name="employment_type_specify[]" class="form-control form-control-sm mt-1 specify-input d-none" placeholder="Please specify...">
                                         </div>
                                         <div class="col-md-3"><label class="form-label small fw-bold">Office Assignment</label><select name="office_assignment[]" class="form-select form-select-sm"><option value="Zamboanga City">Zamboanga City</option><option value="Zamboanga del Norte">Z. del Norte</option><option value="Zamboanga del Sur">Z. del Sur</option><option value="Zamboanga Sibugay">Z. Sibugay</option></select></div>
-                                        <div class="col-md-3"><label class="form-label small fw-bold">Daily Salary</label><input type="number" step="0.01" name="salary[]" class="form-control form-control-sm"></div>
+                                        <div class="col-md-3"><label class="form-label small fw-bold">Monthly Salary</label><input type="number" step="0.01" name="salary[]" class="form-control form-control-sm"></div>
                                         <div class="col-md-2"><label class="form-label small fw-bold">Start Date</label><input type="date" name="start_date[]" class="form-control form-control-sm"></div>
                                         <div class="col-md-2"><label class="form-label small fw-bold">End Date <small class="text-muted fw-normal">(Blank if Present)</small></label><input type="date" name="end_date[]" class="form-control form-control-sm"></div>
                                     </div>
@@ -271,7 +273,7 @@ if (isset($_GET['draft_id'])) {
                                 <i class="bi bi-save"></i> Save as Draft
                             </button>
                             <button type="button" class="btn text-white px-4 fw-bold" style="background-color: #0F172A;" id="nextBtn" onclick="move(1)">Next Step</button>
-                            <button type="submit" class="btn btn-success px-5 fw-bold d-none" id="saveBtn">SaveEmployee</button>
+                            <button type="submit" class="btn btn-success px-5 fw-bold d-none" id="saveBtn">Save Employee</button>
                         </div>
                     </form>
                 </div>
@@ -358,33 +360,44 @@ function addChild() {
         <div class="col-md-4"><input type="text" name="child_fname[]" class="form-control form-control-sm" placeholder="First Name"></div>
         <div class="col-md-3"><input type="text" name="child_lname[]" class="form-control form-control-sm" placeholder="Last Name"></div>
         <div class="col-md-4"><input type="date" name="child_dob[]" class="form-control form-control-sm" max="<?php echo date('Y-m-d'); ?>" onchange="calculateAge()" ></div>
-        <div class="col-md-1"><button type="button" class="btn btn-sm btn-danger w-100" onclick="this.closest('.child-row').remove()">X</button></div>
+        <div class="col-md-1"><button type="button" class="btn btn-sm btn-glass-danger w-100 fw-bold shadow-sm" onclick="this.closest('.child-row').remove()" title="Remove Child"><i class="bi bi-trash3"></i></button></div>
     </div>`;
     document.getElementById('children_container').insertAdjacentHTML('beforeend', html);
 }
 
 function addEducation() {
-    let html = `<div class="p-3 border rounded bg-light mb-3 edu-row shadow-sm"><div class="row g-3"><div class="col-md-3"><label class="form-label small fw-bold">Level <span class="text-danger">*</span></label><select name="edu_level[]" class="form-select form-select-sm edu-level-select" required><option value="Elementary">Elementary</option><option value="Secondary">Secondary</option><option value="Vocational/Trade Course">Vocational/Trade</option><option value="College" selected>College</option><option value="Graduate Studies">Graduate Studies</option></select></div><div class="col-md-3"><label class="form-label small fw-bold">School Name <span class="text-danger">*</span></label><input type="text" name="school_name[]" class="form-control form-control-sm" required></div><div class="col-md-3"><label class="form-label small fw-bold">Degree / Course</label><input type="text" name="degree_course[]" class="form-control form-control-sm" placeholder="e.g. High School"></div><div class="col-md-3"><label class="form-label small fw-bold">From (Year)</label><input type="text" name="start_year[]" class="form-control form-control-sm" maxlength="4" placeholder="YYYY"></div><div class="col-md-3"><label class="form-label small fw-bold">To (Year)</label><input type="text" name="end_year[]" class="form-control form-control-sm" maxlength="4" placeholder="YYYY"></div><div class="col-md-2"><label class="form-label small fw-bold">Graduated?</label><select name="is_graduated[]" class="form-select form-select-sm grad-select" onchange="toggleGradFields(this)"><option value="1">Yes</option><option value="0">No</option></select></div><div class="col-md-2"><label class="form-label small fw-bold">Year Grad.</label><input type="text" name="year_graduated[]" class="form-control form-control-sm year-grad-input" maxlength="4" placeholder="YYYY"></div><div class="col-md-3"><label class="form-label small fw-bold">Highest Units</label><input type="text" name="highest_level_units[]" class="form-control form-control-sm units-input"></div><div class="col-md-2 d-flex align-items-end"><button type="button" class="btn btn-sm btn-danger w-100 fw-bold" onclick="this.closest('.edu-row').remove()">Remove</button></div></div></div>`;
+    let html = `<div class="p-3 border rounded bg-light mb-3 edu-row shadow-sm"><div class="row g-3 mt-1">
+        <div class="col-md-3"><label class="form-label small fw-bold">Level <span class="text-danger">*</span></label><select name="edu_level[]" class="form-select form-select-sm edu-level-select" required><option value="Elementary">Elementary</option><option value="Secondary">Secondary</option><option value="Vocational/Trade Course">Vocational/Trade</option><option value="College" selected>College</option><option value="Graduate Studies">Graduate Studies</option></select></div>
+        <div class="col-md-3"><label class="form-label small fw-bold">School Name <span class="text-danger">*</span></label><input type="text" name="school_name[]" class="form-control form-control-sm" required></div>
+        <div class="col-md-3"><label class="form-label small fw-bold">Degree / Course</label><input type="text" name="degree_course[]" class="form-control form-control-sm" placeholder="e.g. High School"></div>
+        <div class="col-md-3"><label class="form-label small fw-bold">From (Year)</label><input type="text" name="start_year[]" class="form-control form-control-sm" maxlength="4" placeholder="YYYY"></div>
+        <div class="col-md-3"><label class="form-label small fw-bold">To (Year)</label><input type="text" name="end_year[]" class="form-control form-control-sm" maxlength="4" placeholder="YYYY"></div>
+        <div class="col-md-2"><label class="form-label small fw-bold">Graduated?</label><select name="is_graduated[]" class="form-select form-select-sm grad-select" onchange="checkGradStatus(this)"><option value="1">Yes</option><option value="0">No</option></select></div>
+        <div class="col-md-2"><label class="form-label small fw-bold">Year Grad.</label><input type="text" name="year_graduated[]" class="form-control form-control-sm y-grad-input" maxlength="4" placeholder="YYYY"></div>
+        <div class="col-md-2"><label class="form-label small fw-bold">Highest Units</label><input type="text" name="highest_level_units[]" class="form-control form-control-sm units-input" placeholder="N/A" readonly style="background-color: #e9ecef;"></div>
+        <div class="col-md-3"><label class="form-label small fw-bold">Academic Honors</label><input type="text" name="academic_honors[]" class="form-control form-control-sm" placeholder="e.g. Cum Laude"></div>
+        <div class="col-md-12 text-end mt-2"><button type="button" class="btn btn-sm btn-glass-danger fw-bold shadow-sm px-4" onclick="this.closest('.edu-row').remove()"><i class="bi bi-trash3 me-1"></i> Remove</button></div>
+    </div></div>`;
     document.getElementById('edu_container').insertAdjacentHTML('beforeend', html);
 }
 
 function addEligibility() {
-    let html = `<div class="p-3 border rounded bg-light mb-2 elig-row">
+    let html = `<div class="p-3 border rounded bg-light mb-2 elig-row shadow-sm">
         <div class="row g-2 align-items-end">
-            <div class="col-md-4"><label class="small text-muted mb-1">CES/CSEE/CAREER SERVICE/RA 1080(BOARD/BAR) SPECIAL LAWS/CATEGORY II/ IV ELIGIBILITY and ELIGIBILITIES FOR UNIFORMED PERSONNEL</label><input type="text" name="eligibility_name[]" class="form-control form-control-sm"></div>
-            <div class="col-md-2"><label class="small text-muted mb-1">Rating</label><input type="number" step="0.01" name="eligibility_rating[]" class="form-control form-control-sm"></div>
+            <div class="col-md-4"><label class="small text-muted mb-1">Eligibility Name</label><input type="text" name="eligibility_name[]" class="form-control form-control-sm"></div>
+            <div class="col-md-2"><label class="small text-muted mb-1">Rating</label><input type="text" step="0.01" name="eligibility_rating[]" placeholder="e.g. 85.5%" class="form-control form-control-sm"></div>
             <div class="col-md-3"><label class="small text-muted mb-1">Exam/Conferment Date</label><input type="date" name="date_of_exam_conferment[]" class="form-control form-control-sm"></div>
-            <div class="col-md-3"><label class="small text-muted mb-1">Valid Until Date</label><input type="date" name="valid_until[]" class="form-control form-control-sm"></div>
+            <div class="col-md-3"><label class="small text-muted mb-1">Valid Until Date <span class="text-muted fw-normal" style="font-size: 0.7rem;">(Leave blank if Non-Expiry)</span></label><input type="date" name="valid_until[]" class="form-control form-control-sm"></div>
             <div class="col-md-4"><label class="small text-muted mb-1 mt-2">Place of Exam/Conferment</label><input type="text" name="place_of_exam_conferment[]" class="form-control form-control-sm"></div>
             <div class="col-md-5"><label class="small text-muted mb-1 mt-2">License Number</label><input type="text" name="license_number[]" class="form-control form-control-sm"></div>
-            <div class="col-md-3"><button type="button" class="btn btn-sm btn-danger w-100 mt-4" onclick="this.closest('.elig-row').remove()">Remove</button></div>
+            <div class="col-md-3"><button type="button" class="btn btn-sm btn-glass-danger w-100 mt-4 fw-bold shadow-sm" onclick="this.closest('.elig-row').remove()"><i class="bi bi-trash3 me-1"></i> Remove</button></div>
         </div>
     </div>`;
     document.getElementById('eligibility_container').insertAdjacentHTML('beforeend', html);
 }
 
 function addTraining() {
-    let html = `<div class="p-3 border rounded bg-light mb-2 train-row">
+    let html = `<div class="p-3 border rounded bg-light mb-2 train-row shadow-sm">
         <div class="row g-2 align-items-end">
             <div class="col-md-12"><label class="small text-muted mb-1">Title of L&D Program</label><input type="text" name="training_title[]" class="form-control form-control-sm"></div>
             <div class="col-md-3"><label class="small text-muted mb-1 mt-2">Inclusive Date From</label><input type="date" name="train_start[]" class="form-control form-control-sm"></div>
@@ -392,14 +405,23 @@ function addTraining() {
             <div class="col-md-2"><label class="small text-muted mb-1 mt-2">Total Hours</label><input type="number" name="training_hours[]" class="form-control form-control-sm"></div>
             <div class="col-md-4"><label class="small text-muted mb-1 mt-2">Type (e.g. Managerial)</label><input type="text" name="l_and_d_type[]" class="form-control form-control-sm"></div>
             <div class="col-md-9"><label class="small text-muted mb-1 mt-2">Conducted / Sponsored By</label><input type="text" name="sponsor[]" class="form-control form-control-sm"></div>
-            <div class="col-md-3"><button type="button" class="btn btn-sm btn-danger w-100 mt-4" onclick="this.closest('.train-row').remove()">Remove</button></div>
+            <div class="col-md-3"><button type="button" class="btn btn-sm btn-glass-danger w-100 mt-4 fw-bold shadow-sm" onclick="this.closest('.train-row').remove()"><i class="bi bi-trash3 me-1"></i> Remove</button></div>
         </div>
     </div>`;
     document.getElementById('ld_container').insertAdjacentHTML('beforeend', html);
 }
 
 function addWork() {
-    let html = `<div class="p-3 border rounded bg-light mb-3 work-row shadow-sm"><div class="row g-3"><div class="col-md-4"><label class="form-label small fw-bold">Position Title</label><input type="text" name="position_title[]" class="form-control form-control-sm"></div><div class="col-md-4"><label class="form-label small fw-bold">Department / Agency</label><input type="text" name="department_program[]" class="form-control form-control-sm dept-input"></div><div class="col-md-4"><label class="form-label small fw-bold">Employment Type</label><select name="employment_type_base[]" class="form-select form-select-sm emp-type-select" onchange="toggleDepartmentRow(this)"><option value="JO">Job Order (JO)</option><option value="COS">Contract of Service (COS)</option><option value="Others">Others</option></select><input type="text" name="employment_type_specify[]" class="form-control form-control-sm mt-1 specify-input d-none" placeholder="Please specify..."></div><div class="col-md-3"><label class="form-label small fw-bold">Office Assignment</label><select name="office_assignment[]" class="form-select form-select-sm"><option value="Zamboanga City">Zamboanga City</option><option value="Zamboanga del Norte">Z. del Norte</option><option value="Zamboanga del Sur">Z. del Sur</option><option value="Zamboanga Sibugay">Z. Sibugay</option></select></div><div class="col-md-3"><label class="form-label small fw-bold">Daily Salary</label><input type="number" step="0.01" name="salary[]" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label small fw-bold">Start Date</label><input type="date" name="start_date[]" class="form-control form-control-sm"></div><div class="col-md-2"><label class="form-label small fw-bold">End Date <small class="text-muted fw-normal">(Blank if Present)</small></label><input type="date" name="end_date[]" class="form-control form-control-sm"></div><div class="col-md-2 d-flex align-items-end"><button type="button" class="btn btn-sm btn-danger w-100 fw-bold" onclick="this.closest('.work-row').remove()">Remove</button></div></div></div>`;
+    let html = `<div class="p-3 border rounded bg-light mb-3 work-row shadow-sm"><div class="row g-3 mt-1">
+        <div class="col-md-4"><label class="form-label small fw-bold">Position Title</label><input type="text" name="position_title[]" class="form-control form-control-sm"></div>
+        <div class="col-md-4"><label class="form-label small fw-bold">Department / Agency</label><input type="text" name="department_program[]" class="form-control form-control-sm dept-input"></div>
+        <div class="col-md-4"><label class="form-label small fw-bold">Employment Type</label><select name="employment_type_base[]" class="form-select form-select-sm emp-type-select" onchange="toggleDepartmentRow(this)"><option value="JO">Job Order (JO)</option><option value="COS">Contract of Service (COS)</option><option value="Others">Others</option></select><input type="text" name="employment_type_specify[]" class="form-control form-control-sm mt-1 specify-input d-none" placeholder="Please specify..."></div>
+        <div class="col-md-3"><label class="form-label small fw-bold">Office Assignment</label><select name="office_assignment[]" class="form-select form-select-sm"><option value="Zamboanga City">Zamboanga City</option><option value="Zamboanga del Norte">Z. del Norte</option><option value="Zamboanga del Sur">Z. del Sur</option><option value="Zamboanga Sibugay">Z. Sibugay</option></select></div>
+        <div class="col-md-3"><label class="form-label small fw-bold">Monthly Salary</label><input type="number" step="0.01" name="salary[]" class="form-control form-control-sm"></div>
+        <div class="col-md-2"><label class="form-label small fw-bold">Start Date</label><input type="date" name="start_date[]" class="form-control form-control-sm"></div>
+        <div class="col-md-2"><label class="form-label small fw-bold">End Date <small class="text-muted fw-normal">(Blank if Present)</small></label><input type="date" name="end_date[]" class="form-control form-control-sm"></div>
+        <div class="col-md-2 d-flex align-items-end"><button type="button" class="btn btn-sm btn-glass-danger w-100 fw-bold shadow-sm" onclick="this.closest('.work-row').remove()"><i class="bi bi-trash3 me-1"></i> Remove</button></div>
+    </div></div>`;
     document.getElementById('work_container').insertAdjacentHTML('beforeend', html);
     const newRow = document.getElementById('work_container').lastElementChild;
     toggleDepartmentRow(newRow.querySelector('.emp-type-select'));
@@ -458,7 +480,7 @@ function checkGradStatus(sel) {
 }
 
 function addOtherInfo() {
-    let html = `<div class="p-2 border rounded bg-light mb-2 other-row">
+    let html = `<div class="p-2 border rounded bg-light mb-2 other-row shadow-sm">
         <div class="row g-2 align-items-end">
             <div class="col-md-4">
                 <label class="small text-muted mb-1">Category</label>
@@ -474,7 +496,7 @@ function addOtherInfo() {
                 <input type="text" name="detail_description[]" class="form-control form-control-sm" placeholder="Specify details..." required>
             </div>
             <div class="col-md-2">
-                <button type="button" class="btn btn-sm btn-danger w-100 mt-4" onclick="this.closest('.other-row').remove()">Remove</button>
+                <button type="button" class="btn btn-sm btn-glass-danger w-100 mt-4 fw-bold shadow-sm" onclick="this.closest('.other-row').remove()"><i class="bi bi-trash3 me-1"></i> Remove</button>
             </div>
         </div>
     </div>`;

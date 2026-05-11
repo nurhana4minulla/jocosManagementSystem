@@ -31,10 +31,10 @@ if ($search !== '') {
 
 
 if ($status === 'active')   { 
-    $filter_sql .= " AND h.start_date <= CURDATE() AND (h.end_date IS NULL OR h.end_date >= CURDATE())"; 
+    $filter_sql .= " AND h.start_date <= CURDATE() AND (h.end_date IS NULL OR h.end_date = '' OR h.end_date = '0000-00-00' OR h.end_date >= CURDATE())"; 
 }
 if ($status === 'inactive') { 
-    $filter_sql .= " AND (h.start_date > CURDATE() OR (h.end_date IS NOT NULL AND h.end_date < CURDATE()))"; 
+    $filter_sql .= " AND (h.start_date > CURDATE() OR (h.end_date IS NOT NULL AND h.end_date != '' AND h.end_date != '0000-00-00' AND h.end_date < CURDATE()))"; 
 }
 
 
@@ -79,7 +79,11 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
             h.position_title, h.department_program, h.employment_type, 
             h.office_assignment, h.salary, h.start_date, h.end_date
         FROM employees e 
-        LEFT JOIN employment_history h ON e.employee_id = h.employee_id 
+        LEFT JOIN (
+            SELECT h1.* FROM employment_history h1
+            INNER JOIN (SELECT employee_id, MAX(start_date) as max_start FROM employment_history GROUP BY employee_id) h2 
+            ON h1.employee_id = h2.employee_id AND h1.start_date = h2.max_start
+        ) h ON e.employee_id = h.employee_id 
         WHERE e.is_deleted = 0 " . $filter_sql . " 
         GROUP BY e.employee_id 
         ORDER BY e.last_name ASC
@@ -96,7 +100,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
     
     // column headers
     $headers = [
-        'OFFICE ID', 'STATUS', 'EMPLOYMENT TYPE', 'POSITION', 'DEPARTMENT/AGENCY', 'OFFICE ASSIGNMENT', 'START DATE', 'END DATE', 'DAILY SALARY',
+        'OFFICE ID', 'STATUS', 'EMPLOYMENT TYPE', 'POSITION', 'DEPARTMENT/AGENCY', 'OFFICE ASSIGNMENT', 'START DATE', 'END DATE', 'MONTHLY SALARY',
         'LAST NAME', 'FIRST NAME', 'MIDDLE NAME', 'EXTENSION', 'SEX', 'DATE OF BIRTH', 'AGE', 'CIVIL STATUS', 'BLOOD TYPE',
         'CONTACT NUMBER', 'EMAIL', 'RESIDENTIAL ADDRESS', 'PERMANENT ADDRESS',
         'INDIGENOUS GROUP', 'PWD', 'SOLO PARENT',
@@ -123,8 +127,9 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
             $age = $row['dob'] ? $now->diff(new DateTime($row['dob']))->y : 'N/A';
 
             
-            $today = date('Y-m-d');
-            $is_active = (!empty($row['start_date']) && $today >= $row['start_date'] && (empty($row['end_date']) || $today <= $row['end_date']));
+           $today = date('Y-m-d');
+            $is_present = empty($row['end_date']) || $row['end_date'] === '0000-00-00';
+            $is_active = (!empty($row['start_date']) && $today >= $row['start_date'] && ($is_present || $today <= $row['end_date']));
             $status = $is_active ? 'Active' : 'Inactive (Expired)';
 
             // fetch IDs
@@ -159,7 +164,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
                 $rating = !empty($el['rating']) ? " ({$el['rating']}%)" : "";
                 $elig_str[] = $el['eligibility_name'] . $rating;
             }
-            $elig_final = empty($elig_str) ? 'None' : implode("\n", $elig_str);
+            $elig_final = empty($elig_str) ? 'None' : implode(" ", $elig_str);
 
             // f trainings
             $trn_str = [];
@@ -167,7 +172,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
             while($tr = $res_trn->fetch_assoc()) {
                 $trn_str[] = "{$tr['training_title']} ({$tr['hours']} hrs)";
             }
-            $trn_final = empty($trn_str) ? 'None' : implode("\n", $trn_str);
+            $trn_final = empty($trn_str) ? 'None' : implode(" ", $trn_str);
 
             // assemble the row
             $csv_row = [
@@ -193,12 +198,19 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
 include '../includes/header.php'; 
 
 // get total records
-$count_query = "SELECT COUNT(DISTINCT e.employee_id) as total FROM employees e LEFT JOIN employment_history h ON e.employee_id = h.employee_id WHERE e.is_deleted = 0 " . $filter_sql;
+$count_query = "SELECT COUNT(DISTINCT e.employee_id) as total 
+                FROM employees e 
+                LEFT JOIN (
+                    SELECT h1.* FROM employment_history h1
+                    INNER JOIN (SELECT employee_id, MAX(start_date) as max_start FROM employment_history GROUP BY employee_id) h2 
+                    ON h1.employee_id = h2.employee_id AND h1.start_date = h2.max_start
+                ) h ON e.employee_id = h.employee_id 
+                WHERE e.is_deleted = 0 " . $filter_sql;
 $count_result = $conn->query($count_query);
 $total_records = $count_result->fetch_assoc()['total'];
 $total_pages = ceil($total_records / $limit);
 
-// --- UPDATED: get employees (Fetching start_date & end_date for UI check) ---
+// get employees
 $query = "
     SELECT 
         e.employee_id, e.office_id, e.first_name, e.last_name, e.dob, 
@@ -206,7 +218,11 @@ $query = "
         h.department_program, h.office_assignment, h.employment_type,
         h.start_date, h.end_date
     FROM employees e
-    LEFT JOIN employment_history h ON e.employee_id = h.employee_id
+    LEFT JOIN (
+        SELECT h1.* FROM employment_history h1
+        INNER JOIN (SELECT employee_id, MAX(start_date) as max_start FROM employment_history GROUP BY employee_id) h2 
+        ON h1.employee_id = h2.employee_id AND h1.start_date = h2.max_start
+    ) h ON e.employee_id = h.employee_id
     WHERE e.is_deleted = 0 " . $filter_sql . "
     GROUP BY e.employee_id 
     " . $order_sql . " 
@@ -388,11 +404,16 @@ $drafts_result = $conn->query($drafts_query);
                                     <td class="py-3 text-muted"><?php echo htmlspecialchars($row['sex']); ?></td>
                                     <td class="py-3 text-muted fw-bold"><?php echo !empty($row['office_assignment']) ? htmlspecialchars($row['office_assignment']) : '<span class="text-muted fw-normal">N/A</span>'; ?></td>
                                     <td class="py-3 fw-bold text-primary"><?php echo !empty($row['employment_type']) ? htmlspecialchars($row['employment_type']) : '<span class="text-muted fw-normal">N/A</span>'; ?></td>
-                                    <td class="py-3 text-muted"><?php echo !empty($row['department_program']) ? htmlspecialchars($row['department_program']) : '<span class="text-muted fw-normal">N/A</span>'; ?></td>
+                                    <td class="py-3 text-muted">
+                                         <div class="text-truncate" style="max-width: 160px; font-size: 0.8rem;" title="<?php echo !empty($row['department_program']) ? htmlspecialchars($row['department_program']) : 'N/A'; ?>">
+                                            <?php echo !empty($row['department_program']) ? htmlspecialchars($row['department_program']) : '<span class="text-muted fw-normal">N/A</span>'; ?>
+                                        </div>
+                                    </td>
                                     <td class="py-3">
                                         <?php 
                                         $today = date('Y-m-d');
-                                        $is_active = (!empty($row['start_date']) && $today >= $row['start_date'] && (empty($row['end_date']) || $today <= $row['end_date']));
+                                        $is_present = empty($row['end_date']) || $row['end_date'] === '0000-00-00';
+                                        $is_active = (!empty($row['start_date']) && $today >= $row['start_date'] && ($is_present || $today <= $row['end_date']));
                                         
                                         if ($is_active): ?>
                                             <span class="badge bg-success bg-opacity-10 text-success px-3 py-1 rounded-pill">Active</span>
@@ -459,24 +480,21 @@ $drafts_result = $conn->query($drafts_query);
 
 </div>
 
-<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-sm">
-            <div class="modal-content border-0 shadow">
-                <div class="modal-header border-bottom-0 pb-0">
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body text-center pb-4 px-4">
-                    <div class="mb-3 mt-2">
-                        <div class="rounded-circle bg-danger bg-opacity-10 d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
-                            <i class="bi bi-trash3-fill text-danger" style="font-size: 2.5rem;"></i>
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+            <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-3 d-flex justify-content-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);">
+                            <i class="bi bi-exclamation-triangle-fill text-danger fs-4"></i>
                         </div>
                     </div>
-                    <h5 class="fw-bold mb-2" style="color: #0F172A;">Move to Recycle Bin?</h5>
-                    <p class="text-muted small mb-4">This profile will be removed from the master list. You can restore it later.</p>
+                    <h6 class="fw-bold mb-2" style="color: #0F172A; font-size: 1.1rem;">Move to Recycle Bin?</h6>
+                    <p class="text-muted small mb-4">This profile will be hidden from the master list. You can restore it later if needed.</p>
                     
-                    <div class="d-flex justify-content-center gap-2">
-                        <button type="button" class="btn btn-light border shadow-sm fw-bold px-4" data-bs-dismiss="modal">Cancel</button>
-                        <a href="#" id="confirmDeleteBtn" class="btn btn-danger shadow-sm fw-bold px-4">Yes, Remove</a>
+                    <div class="d-flex gap-2 w-100">
+                        <button type="button" class="btn btn-light fw-bold flex-fill" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+                        <a href="#" id="confirmDeleteBtn" class="btn btn-glass-danger fw-bold flex-fill" style="border-radius: 8px;">Yes, Remove</a>
                     </div>
                 </div>
             </div>

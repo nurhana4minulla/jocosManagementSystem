@@ -22,41 +22,34 @@ $result = $conn->query($query);
 ?>
 
 <div class="container-fluid py-4">
-    <div class="row mb-4 align-items-center">
+    <div class="row mb-4 align-items-center page-transition">
         <div class="col-md-6 d-flex align-items-center">
-            <div class="rounded-circle bg-danger bg-opacity-10 d-flex align-items-center justify-content-center me-3" style="width: 55px; height: 55px;">
-                <i class="bi bi-trash3-fill text-danger fs-3"></i>
+            <div class="rounded d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); backdrop-filter: blur(5px);">
+                <i class="bi bi-trash3 text-danger fs-4"></i>
             </div>
             <div>
-                <h4 class="fw-bold mb-0 text-danger">Recycle Bin</h4>
-                <p class="text-muted small mb-0">Restore deleted personnel or remove them permanently.</p>
+                <h4 class="fw-bold mb-1 text-danger" style="letter-spacing: -0.5px;">Recycle Bin</h4>
+                <p class="text-muted small mb-0 fw-medium">Restore deleted personnel or remove them permanently.</p>
             </div>
         </div>
         <div class="col-md-6 text-end">
-            <a href="manage_employees.php" class="btn btn-light border shadow-sm fw-bold">
-                <i class="bi bi-arrow-left"></i> Back to Master List
+            <a href="manage_employees.php" class="btn btn-sm btn-gradient-dark shadow-sm fw-bold px-3 py-2" style="border-radius: 8px;">
+                <i class="bi bi-arrow-left me-1"></i> Back to Master List
             </a>
         </div>
     </div>
 
-    <?php if(isset($_GET['restore_success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
-            <i class="bi bi-check-circle-fill me-2"></i> Employee successfully restored to the Master List.
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
-    <?php endif; ?>
-
-    <div class="card shadow-sm border-0">
+    <div class="card shadow-sm border-0 page-transition" style="animation-delay: 0.1s; border-radius: 12px; overflow: hidden;">
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0 text-nowrap">
-                    <thead class="bg-light text-muted small text-uppercase border-bottom">
+                    <thead class="bg-light text-muted" style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.8px;">
                         <tr>
-                            <th class="ps-4 py-3">Profile</th>
-                            <th class="py-3">Office ID</th>
-                            <th class="py-3">Full Name</th>
-                            <th class="py-3">Department</th>
-                            <th class="text-end pe-4 py-3">Actions</th>
+                            <th class="ps-4 py-3 border-bottom-0">Profile</th>
+                            <th class="py-3 border-bottom-0">Office ID</th>
+                            <th class="py-3 border-bottom-0">Full Name</th>
+                            <th class="py-3 border-bottom-0">Department</th>
+                            <th class="text-end pe-4 py-3 border-bottom-0">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -65,33 +58,40 @@ $result = $conn->query($query);
                                 <tr>
                                     <td class="ps-4 py-3">
                                         <?php if (!empty($row['photo_path']) && file_exists('../' . $row['photo_path'])): ?>
-                                            <img src="../<?php echo htmlspecialchars($row['photo_path']); ?>" alt="Photo" class="rounded-circle object-fit-cover border shadow-sm" style="width: 40px; height: 40px;">
+                                            <img src="../<?php echo htmlspecialchars($row['photo_path']); ?>" alt="Photo" class="rounded-circle object-fit-cover shadow-sm" style="width: 42px; height: 42px; border: 2px solid white;">
                                         <?php else: ?>
-                                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 40px; height: 40px;">
+                                            <div class="rounded-circle bg-light text-secondary d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 42px; height: 42px; border: 1px solid #e2e8f0;">
                                                 <?php echo strtoupper(substr($row['first_name'], 0, 1) . substr($row['last_name'], 0, 1)); ?>
                                             </div>
                                         <?php endif; ?>
                                     </td>
                                     <td class="py-3 fw-bold text-secondary"><?php echo htmlspecialchars($row['office_id']); ?></td>
-                                    <td class="py-3 fw-bold text-dark"><?php echo htmlspecialchars($row['last_name'] . ', ' . $row['first_name']); ?></td>
-                                    <td class="py-3 text-muted"><?php echo !empty($row['department_program']) ? htmlspecialchars($row['department_program']) : 'N/A'; ?></td>
+                                    <td class="py-3 fw-bold" style="color: #0F172A;"><?php echo htmlspecialchars($row['last_name'] . ', ' . $row['first_name']); ?></td>
+                                    <td class="py-3 text-muted">
+                                    <div class="text-truncate" style="max-width: 180px; font-size: 0.8rem;" title="<?php echo !empty($row['department_program']) ? htmlspecialchars($row['department_program']) : 'N/A'; ?>">
+                                        <?php echo !empty($row['department_program']) ? htmlspecialchars($row['department_program']) : '<span class="text-muted fw-normal small">N/A</span>'; ?>
+                                    </div>
+                                    </td>
                                     <td class="text-end pe-4 py-3">
-                                        <div class="btn-group shadow-sm">
-                                            <a href="restore_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-success fw-bold" title="Restore to Master List"><i class="bi bi-arrow-counterclockwise"></i> Restore</a>
-                                            <button type="button" class="btn btn-sm btn-danger fw-bold" onclick="alert('For security, permanent deletion is disabled in this demo.')" title="Permanently Delete"><i class="bi bi-x-circle"></i></button>
+                                        <div class="btn-group shadow-sm" style="border-radius: 6px;">
+                                            <a href="restore_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-success fw-bold px-3" title="Restore to Master List">
+                                                <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
+                                            </a>
+                                            <button type="button" class="btn btn-sm btn-light border text-danger fw-bold" onclick="showToast('Permanent deletion is disabled in this demo.', 'warning')" title="Permanently Delete">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>
                             <?php endwhile; ?>
                         <?php else: ?>
-                                    <tr>
-                                        <td colspan="9" class="text-center py-5 text-muted">
-                                            <div class="mb-2 fs-1 text-light"><i class="bi bi-trash3"></i></div>
-                                            <p class="mb-0 fw-bold fs-5" style="color: #0F172A;">Recycle Bin is empty</p>
-                                            <p class="small mb-0">Deleted employee profiles will be temporarily stored here.</p>
-                                            <a href="manage_employees.php" class="btn btn-sm btn-outline-secondary mt-3 fw-bold">Return to Master List</a>
-                                        </td>
-                                    </tr>
+                            <tr>
+                                <td colspan="5" class="text-center py-5 text-muted">
+                                    <div class="mb-3 fs-1 text-light"><i class="bi bi-trash3" style="opacity: 0.5;"></i></div>
+                                    <p class="mb-1 fw-bold fs-5" style="color: #0F172A;">Recycle Bin is empty</p>
+                                    <p class="small mb-0">Deleted employee profiles will be temporarily stored here.</p>
+                                </td>
+                            </tr>
                         <?php endif; ?>
                     </tbody>
                 </table>
@@ -99,5 +99,16 @@ $result = $conn->query($query);
         </div>
     </div>
 </div>
+
+<script>
+    // Since we removed the old PHP alert banner, we use our new Toast system for success!
+    document.addEventListener("DOMContentLoaded", function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('restore_success')) {
+            showToast('Employee successfully restored to the Master List.', 'success');
+            window.history.replaceState(null, null, window.location.pathname);
+        }
+    });
+</script>
 
 <?php include '../includes/footer.php'; ?>

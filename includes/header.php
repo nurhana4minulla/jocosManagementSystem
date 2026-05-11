@@ -191,9 +191,45 @@
             outline: none;
         }
         
-        /* Make the select dropdowns look matching */
         select.filter-input {
             cursor: pointer;
+        }
+
+        .btn-glass-danger {
+            background: rgba(239, 68, 68, 0.15) !important;
+            color: #ef4444 !important;
+            border: 1px solid rgba(239, 68, 68, 0.3) !important;
+            transition: all 0.3s ease;
+        }
+        .btn-glass-danger:hover {
+            background: rgba(239, 68, 68, 0.25) !important;
+            color: #dc2626 !important;
+            transform: translateY(-2px);
+        }
+
+        /* --- PROFILE DROPDOWN  --- */
+        .dropdown-item {
+            display: flex !important;
+            align-items: center !important;
+            padding: 0.6rem 1.2rem !important;
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown-item i {
+            font-size: 1.1rem !important;
+            width: 24px;
+            text-align: center;
+        }
+
+        .dropdown-item.logout-link {
+            color: #ef4444 !important;
+        }
+
+        .dropdown-item.logout-link:hover {
+            background-color: rgba(239, 68, 68, 0.08) !important;
+            color: #dc2626 !important;
         }
     </style>
 </head>
@@ -224,11 +260,24 @@
                 </div>
             </div>
             
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="profileDropdown">
-                <li><h6 class="dropdown-header text-uppercase small fw-bold text-muted">Account Management</h6></li>
-                <li><a class="dropdown-item py-2" href="account_settings.php"><i class="bi bi-gear me-2 text-muted"></i> Account Settings</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item py-2 text-danger fw-bold" href="logout.php"><i class="bi bi-box-arrow-right me-2"></i> Secure Logout</a></li>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" aria-labelledby="profileDropdown" style="border-radius: 12px; padding: 0.5rem;">
+                <li><h6 class="dropdown-header text-uppercase small fw-bold text-muted" style="font-size: 0.65rem; letter-spacing: 0.5px;">Account Management</h6></li>
+                
+                <li>
+                    <a class="dropdown-item py-2" href="account_settings.php">
+                        <i class="bi bi-gear me-3 text-muted"></i> 
+                        <span>Account Settings</span>
+                    </a>
+                </li>
+                
+                <li><hr class="dropdown-divider mx-2 opacity-50"></li>
+                
+                <li>
+                    <a class="dropdown-item logout-link fw-bold" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                        <i class="bi bi-box-arrow-right me-3"></i> 
+                        <span>Secure Logout</span>
+                    </a>
+                </li>
             </ul>
         </div>
     </header>
@@ -251,6 +300,27 @@
             
             </div>
     </nav>
+
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-body p-4 text-center">
+                <div class="mb-3 d-flex justify-content-center">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(15, 23, 42, 0.1); border: 1px solid rgba(15, 23, 42, 0.2);">
+                        <i class="bi bi-box-arrow-right fs-4" style="color: #0F172A;"></i>
+                    </div>
+                </div>
+                <h6 class="fw-bold mb-2" style="color: #0F172A; font-size: 1.1rem;">Ready to leave?</h6>
+                <p class="text-muted small mb-4">Are you sure you want to end your current session and log out?</p>
+                
+                <div class="d-flex gap-2 w-100">
+                    <button type="button" class="btn btn-light fw-bold flex-fill shadow-sm" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+                    <a href="logout.php" class="btn fw-bold flex-fill text-white shadow-sm" style="border-radius: 8px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">Yes, Log Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
     <script>
     

@@ -34,11 +34,19 @@ if (isset($_GET['draft_id'])) {
                 </div>
                 
                 <div class="card-body p-4">
-                    <div class="row mb-4 text-center g-0 border-bottom pb-3">
-                        <div class="col-3 step-box active fw-bold" id="L1" style="color: #0F172A;">1. Personal</div>
-                        <div class="col-3 step-box text-muted" id="L2">2. Family & IDs</div>
-                        <div class="col-3 step-box text-muted" id="L3">3. Educ & Elig.</div>
-                        <div class="col-3 step-box text-muted" id="L4">4. Contract & L&D</div>
+                    <div class="d-flex justify-content-between flex-wrap gap-2 mb-4 border-bottom pb-3">
+                        <div id="L1" class="step-indicator fw-bold" style="color: #0F172A; cursor: pointer;" onclick="goToStep(1)">
+                            <i class="bi bi-1-circle me-1"></i> Personal
+                        </div>
+                        <div id="L2" class="step-indicator text-muted" style="cursor: pointer;" onclick="goToStep(2)">
+                            <i class="bi bi-2-circle me-1"></i> Family & IDs
+                        </div>
+                        <div id="L3" class="step-indicator text-muted" style="cursor: pointer;" onclick="goToStep(3)">
+                            <i class="bi bi-3-circle me-1"></i> Educ & Elig.
+                        </div>
+                        <div id="L4" class="step-indicator text-muted" style="cursor: pointer;" onclick="goToStep(4)">
+                            <i class="bi bi-4-circle me-1"></i> Contract & L&D
+                        </div>
                     </div>
 
                     <div id="ajaxErrorMessage" class="alert alert-danger d-none shadow-sm mb-4" role="alert"></div>
@@ -304,6 +312,34 @@ function move(n) {
     document.getElementById('saveBtn').classList.toggle('d-none', step !== 4);
 }
 
+function goToStep(newStep) {
+    // 1. Hide the current step
+    document.getElementById('S' + step).classList.add('d-none');
+    document.getElementById('L' + step).classList.remove('fw-bold');
+    document.getElementById('L' + step).style.color = '';
+    document.getElementById('L' + step).classList.add('text-muted');
+
+    // 2. Update the step variable to the clicked step
+    step = newStep;
+
+    // 3. Show the new step
+    document.getElementById('S' + step).classList.remove('d-none');
+    document.getElementById('L' + step).classList.add('fw-bold');
+    document.getElementById('L' + step).style.color = '#0F172A';
+    document.getElementById('L' + step).classList.remove('text-muted');
+
+    // 4. Update the Previous/Next/Save buttons
+    document.getElementById('prevBtn').disabled = (step === 1);
+    document.getElementById('nextBtn').classList.toggle('d-none', step === 4);
+    
+    const saveBtn = document.getElementById('saveBtn');
+    if(saveBtn) {
+        saveBtn.classList.toggle('d-none', step !== 4);
+    }
+}
+
+
+
 function calculateAge() {
     let dob = document.getElementById('dob').value;
     if(!dob) return;
@@ -544,7 +580,6 @@ document.getElementById('pdsForm').addEventListener('submit', function(e) {
         if (data.success) {
             formChanged = false; // added new
 
-            // If we successfully saved a draft, delete it from the holding pen!
             if (activeDraftId > 0) {
                 fetch('delete_draft.php?id=' + activeDraftId);
             }
@@ -594,25 +629,21 @@ document.getElementById('pdsForm').addEventListener('submit', function(e) {
     });
 }); 
 
-// --- UNSAVED CHANGES WARNING ---
 let formChanged = false;
 
-// 1. Listen to all inputs to see if the user typed or changed anything
 document.querySelectorAll('input, select, textarea').forEach(element => {
     element.addEventListener('change', () => {
         formChanged = true;
     });
 });
 
-// 2. Warn the user if they try to close the tab, refresh, or click a link
 window.addEventListener('beforeunload', function (e) {
     if (formChanged) {
         e.preventDefault();
-        e.returnValue = ''; // This triggers the browser's default warning popup
+        e.returnValue = '';
     }
 });
 
-// --- DATABASE DRAFT SAVING ---
 function saveToDatabaseDraft() {
     const draftBtn = document.getElementById('draftBtn');
     const originalText = draftBtn.innerHTML;
@@ -634,7 +665,7 @@ function saveToDatabaseDraft() {
         
         if (data.success) {
             showToast("Success! Your draft has been safely stored.", "success");
-            formChanged = false; // Turn off the unsaved warning so they can leave safely
+            formChanged = false; 
         } else {
             alert("Error saving draft: " + data.message);
         }
@@ -646,23 +677,19 @@ function saveToDatabaseDraft() {
     });
 }
 
-// --- RESUME DRAFT LOGIC ---
 const draftData = <?php echo $draft_json; ?>;
 const activeDraftId = <?php echo $draft_id; ?>;
 
 if (draftData) {
-    // Loop through everything saved in the database
     for (const key in draftData) {
         const val = draftData[key];
         
-        // Handle repeating array fields (like education layers)
         if (Array.isArray(val)) {
             const inputs = document.querySelectorAll(`[name="${key}[]"]`);
             val.forEach((v, index) => {
                 if (inputs[index]) inputs[index].value = v;
             });
         } else {
-            // Handle standard inputs, dropdowns, and checkboxes
             const input = document.querySelector(`[name="${key}"]`);
             if (input) {
                 if (input.type === 'checkbox') {
@@ -677,16 +704,51 @@ if (draftData) {
         }
     }
     
-    // Trigger any dynamic UI changes (like copying the address)
     if (document.getElementById('sameAddress') && document.getElementById('sameAddress').checked) {
         copyAddress();
     }
     
-    // Give the user a nice welcome message
    setTimeout(() => {
         showToast("Draft loaded successfully! Continue where you left off.", "success");
     }, 500);
 }
+
+document.addEventListener("DOMContentLoaded", function() {
+    
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function(e) {
+            const form = this.closest('form');
+            
+            if (!form.checkValidity()) {
+                e.preventDefault(); 
+                
+                const firstInvalid = form.querySelector(':invalid');
+                if (firstInvalid) {
+                    const stepDiv = firstInvalid.closest('div[id^="S"]');
+                    
+                    if (stepDiv) {
+                        const stepNum = parseInt(stepDiv.id.replace('S', ''));
+                        
+                        if (typeof goToStep === "function") {
+                            goToStep(stepNum);
+                        }
+                        
+                        showToast('Missing required field. Please fill out the highlighted box.', 'danger');
+                        
+                        firstInvalid.classList.add('is-invalid');
+
+                        setTimeout(() => firstInvalid.focus(), 150);
+                        
+                        firstInvalid.addEventListener('input', function() {
+                            this.classList.remove('is-invalid');
+                        }, { once: true });
+                    }
+                }
+            }
+        });
+    }
+});
 
 </script>
 

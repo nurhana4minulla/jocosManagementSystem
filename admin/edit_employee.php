@@ -63,11 +63,19 @@ $current_work = !empty($work) ? $work[0] : null;
                 </div>
                 
                 <div class="card-body p-4">
-                    <div class="row mb-4 text-center g-0 border-bottom pb-3">
-                        <div class="col-3 step-box active fw-bold" id="L1" style="color: #0F172A;">1. Personal</div>
-                        <div class="col-3 step-box text-muted" id="L2">2. Family & IDs</div>
-                        <div class="col-3 step-box text-muted" id="L3">3. Educ & Elig.</div>
-                        <div class="col-3 step-box text-muted" id="L4">4. Contract & L&D</div>
+                    <div class="d-flex justify-content-between flex-wrap gap-2 mb-4 border-bottom pb-3">
+                        <div id="L1" class="step-indicator fw-bold" style="color: #0F172A; cursor: pointer;" onclick="goToStep(1)">
+                            <i class="bi bi-1-circle me-1"></i> Personal
+                        </div>
+                        <div id="L2" class="step-indicator text-muted" style="cursor: pointer;" onclick="goToStep(2)">
+                            <i class="bi bi-2-circle me-1"></i> Family & IDs
+                        </div>
+                        <div id="L3" class="step-indicator text-muted" style="cursor: pointer;" onclick="goToStep(3)">
+                            <i class="bi bi-3-circle me-1"></i> Educ & Elig.
+                        </div>
+                        <div id="L4" class="step-indicator text-muted" style="cursor: pointer;" onclick="goToStep(4)">
+                            <i class="bi bi-4-circle me-1"></i> Contract & L&D
+                        </div>
                     </div>
 
                     <form action="update_employee.php" method="POST" id="pdsForm" enctype="multipart/form-data">
@@ -415,6 +423,33 @@ function move(n) {
     document.getElementById('saveBtn').classList.toggle('d-none', step !== 4);
 }
 
+function goToStep(newStep) {
+    // 1. Hide the current step
+    document.getElementById('S' + step).classList.add('d-none');
+    document.getElementById('L' + step).classList.remove('fw-bold');
+    document.getElementById('L' + step).style.color = '';
+    document.getElementById('L' + step).classList.add('text-muted');
+
+    // 2. Update the step variable to the clicked step
+    step = newStep;
+
+    // 3. Show the new step
+    document.getElementById('S' + step).classList.remove('d-none');
+    document.getElementById('L' + step).classList.add('fw-bold');
+    document.getElementById('L' + step).style.color = '#0F172A';
+    document.getElementById('L' + step).classList.remove('text-muted');
+
+    // 4. Update the Previous/Next/Save buttons
+    document.getElementById('prevBtn').disabled = (step === 1);
+    document.getElementById('nextBtn').classList.toggle('d-none', step === 4);
+    
+    // Only show the Save button on the final step 
+    const saveBtn = document.getElementById('saveBtn');
+    if(saveBtn) {
+        saveBtn.classList.toggle('d-none', step !== 4);
+    }
+}
+
 function calculateAge() {
     let dob = document.getElementById('dob').value;
     if(!dob) return;
@@ -712,7 +747,44 @@ document.querySelectorAll('input, select, textarea').forEach(element => {
 window.addEventListener('beforeunload', function (e) {
     if (formChanged) {
         e.preventDefault();
-        e.returnValue = ''; 
+        e.returnValue = ''; }
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+    
+    const saveBtn = document.getElementById('saveBtn');
+    if (saveBtn) {
+        saveBtn.addEventListener('click', function(e) {
+            const form = this.closest('form');
+            
+            if (!form.checkValidity()) {
+                e.preventDefault(); 
+                
+                const firstInvalid = form.querySelector(':invalid');
+                if (firstInvalid) {
+                    const stepDiv = firstInvalid.closest('div[id^="S"]');
+                    
+                    if (stepDiv) {
+                        const stepNum = parseInt(stepDiv.id.replace('S', ''));
+                        
+                        if (typeof goToStep === "function") {
+                            goToStep(stepNum);
+                        }
+                        
+                        showToast('Missing required field. Please fill out the highlighted box.', 'danger');
+                        
+                        firstInvalid.classList.add('is-invalid');
+                        
+                        setTimeout(() => firstInvalid.focus(), 150);
+                        
+                        firstInvalid.addEventListener('input', function() {
+                            this.classList.remove('is-invalid');
+                        }, { once: true });
+                    }
+                }
+            }
+        });
+    }
 });
 
 </script>

@@ -77,9 +77,9 @@ $result = $conn->query($query);
                                             <a href="restore_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-success fw-bold px-3" title="Restore to Master List">
                                                 <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
                                             </a>
-                                            <button type="button" class="btn btn-sm btn-light border text-danger fw-bold" onclick="showToast('Permanent deletion is disabled in this demo.', 'warning')" title="Permanently Delete">
-                                                <i class="bi bi-trash-fill"></i>
-                                            </button>
+                                            <button type="button" class="btn btn-sm btn-light border text-danger fw-bold" onclick="confirmPermanentDelete(<?php echo $row['employee_id']; ?>)" title="Permanently Delete">
+                                            <i class="bi bi-trash-fill"></i>
+                                        </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -100,15 +100,58 @@ $result = $conn->query($query);
     </div>
 </div>
 
+<div class="modal fade" id="permanentDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-body p-4 text-center">
+                <div class="mb-3 d-flex justify-content-center">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(220, 38, 38, 0.1); border: 1px solid rgba(220, 38, 38, 0.2);">
+                        <i class="bi bi-exclamation-octagon-fill text-danger fs-4"></i>
+                    </div>
+                </div>
+                <h6 class="fw-bold mb-2" style="color: #0F172A; font-size: 1.1rem;">Delete Permanently?</h6>
+                <p class="text-muted small mb-4">This action cannot be undone. All data, including education and work history, will be erased forever.</p>
+                
+                <div class="d-flex gap-2 w-100">
+                    <button type="button" class="btn btn-light fw-bold flex-fill shadow-sm" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+                    <a href="#" id="confirmPermDeleteBtn" class="btn btn-gradient-danger fw-bold flex-fill text-blue shadow-sm" style="border-radius: 8px;">Yes, Delete</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Since we removed the old PHP alert banner, we use our new Toast system for success!
     document.addEventListener("DOMContentLoaded", function() {
+        // 1. Fix the Bootstrap Backdrop Bug (Moves the modal outside of animated containers)
+        const permDeleteModal = document.getElementById('permanentDeleteModal');
+        if (permDeleteModal) {
+            document.body.appendChild(permDeleteModal); 
+        }
+
+        // 2. Toast Notifications for Success Actions
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('restore_success')) {
             showToast('Employee successfully restored to the Master List.', 'success');
             window.history.replaceState(null, null, window.location.pathname);
         }
+        if (urlParams.has('delete_success')) {
+            showToast('Employee permanently deleted from the database.', 'success');
+            window.history.replaceState(null, null, window.location.pathname);
+        }
     });
+
+    // 3. Function to open the permanent delete modal
+    function confirmPermanentDelete(employeeId) {
+        const confirmBtn = document.getElementById('confirmPermDeleteBtn');
+        confirmBtn.href = "delete_permanent.php?id=" + employeeId;
+        
+        const deleteModal = new bootstrap.Modal(document.getElementById('permanentDeleteModal'));
+        deleteModal.show();
+    }
 </script>
+
+
+
 
 <?php include '../includes/footer.php'; ?>

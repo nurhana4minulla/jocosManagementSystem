@@ -130,7 +130,7 @@ foreach($temp_office_data as $office_name => $counts) {
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<div class="container-fluid py-4">
+<div class="container-fluid py-4 dashboard-animate">
     
     <div class="row mb-4">
         <div class="col-12">

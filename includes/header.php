@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <link rel="icon" type="image/png" href="../assets/img/logo.png">
     <style>
         :root {
             --dti-blue: #0F172A; 
@@ -231,18 +231,100 @@
             background-color: rgba(239, 68, 68, 0.08) !important;
             color: #dc2626 !important;
         }
+
+            @keyframes fadeInGlide {
+                from {
+                    opacity: 0;
+                    transform: translateY(15px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            .dashboard-animate {
+                animation: fadeInGlide 0.5s ease-out forwards;
+            }
+
+            .page-transition {
+                opacity: 0;
+                animation: fadeInGlide 0.3s ease-out forwards;
+            }
+
+  /* --- MOBILE RESPONSIVENESS  */
+        @media (max-width: 768px) {
+            html, body { font-size: 14px !important; }
+            h3 { font-size: 1.5rem !important; }
+            h4 { font-size: 1.2rem !important; }
+            h5 { font-size: 1.1rem !important; }
+            h6 { font-size: 0.95rem !important; }
+            p, span, .text-muted, .form-label { font-size: 0.85rem !important; }
+            .btn { font-size: 0.85rem !important; padding: 0.4rem 0.8rem !important; }
+            .table td, .table th { font-size: 0.8rem !important; padding: 0.5rem !important; }
+            
+            #sidebar {
+                position: fixed !important;
+                top: 0;
+                left: -100% !important; 
+                width: 190px !important; 
+                height: 100vh;
+                z-index: 1060 !important; 
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                box-shadow: none !important; 
+            }
+            
+            #sidebar.active {
+                left: 0 !important; /* Pulls it perfectly onto the screen */
+                box-shadow: 4px 0 24px rgba(15, 23, 42, 0.15) !important;
+            }
+            
+            #content, .main-content {
+                margin-left: 0 !important;
+                width: 100% !important;
+                padding: 1rem !important;
+            }
+            
+            div[style*="width: 80%"], div[style*="width: 75%"] {
+                width: 100% !important;
+            }
+            
+            .step-indicator {
+                font-size: 0.8rem !important;
+                flex: 1 1 45%; 
+                text-align: center;
+                margin-bottom: 0.5rem;
+                padding: 0.25rem;
+            }
+
+        .mobile-overlay {
+            visibility: hidden;
+            opacity: 0;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(3px);
+            z-index: 1055; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .mobile-overlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+            
+        }
     </style>
 </head>
 <body>
 
     <header class="top-navbar">
         <div class="d-flex align-items-center">
-            <div id="sidebarToggle" class="me-2">
+            <div id="sidebarToggle" class="me-2" onclick="toggleSidebar()">
                 <i class="bi bi-list fs-3 text-dark"></i>
             </div>
             
             <div class="d-flex align-items-center ms-2">
-                <!-- <img src="../assets/img/logo.png" alt="DTI Logo" style="height: 40px; margin-right: 12px;"> -->
+                <img src="../assets/img/dtino.png" alt="DTI Logo" style="height: 35px; margin-right: 12px;">
                 <!-- <h1 class="fw-bold fs-5 text-dark letter" style="font-weight: 900 !important; margin-top: 0.5rem;"> DTI IX - Regional Office IX</h1> -->
             </div>
         </div>
@@ -282,7 +364,15 @@
         </div>
     </header>
 
-    <nav class="sidebar">
+    <nav class="sidebar" id="sidebar">
+        <div class="d-flex align-items-center d-md-none px-3 mb-2" style="height: 70px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+            <div onclick="toggleSidebar()" class="me-2" style="cursor: pointer; width: 45px; height: 45px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-list fs-3 text-white"></i>
+            </div>
+            <div class="d-flex align-items-center ms-2">
+                <!-- <img src="../assets/img/dtino.png" alt="DTI Logo" style="height: 35px;"> -->
+            </div>
+        </div>
         <div class="d-flex flex-column h-100">
             <?php $currentPage = basename($_SERVER['PHP_SELF']); ?>
             
@@ -299,6 +389,8 @@
             </a>
             
             </div>
+
+            <!-- <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div> -->
     </nav>
 
     <div class="modal fade" id="logoutModal" tabindex="-1" aria-hidden="true">
@@ -323,15 +415,23 @@
 </div>
 
     <script>
-    
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const body = document.body;
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const body = document.body;
 
-        if (localStorage.getItem('sidebar-state') === 'collapsed') {
-            body.classList.add('sidebar-collapsed');
-        }
+    if (window.innerWidth > 768 && localStorage.getItem('sidebar-state') === 'collapsed') {
+        body.classList.add('sidebar-collapsed');
+    }
 
-        sidebarToggle.addEventListener('click', () => {
+    function toggleSidebar() {
+        if (window.innerWidth <= 768) {
+            // --- MOBILE BEHAVIOR 
+            document.getElementById('sidebar').classList.toggle('active');
+            
+            let overlay = document.getElementById('mobileOverlay');
+            if(overlay) {
+                overlay.classList.toggle('active');
+            }
+        } else {
             body.classList.toggle('sidebar-collapsed');
             
             if (body.classList.contains('sidebar-collapsed')) {
@@ -339,8 +439,8 @@
             } else {
                 localStorage.setItem('sidebar-state', 'expanded');
             }
-            
-        });
-    </script>
+        }
+    }
+</script>
 
     <main class="main-content page-transition">

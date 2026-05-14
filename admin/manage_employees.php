@@ -432,11 +432,9 @@ $drafts_result = $conn->query($drafts_query);
                             <?php endwhile; ?>
                         <?php else: ?>
                             <tr>
-                                <td colspan="9" class="text-center py-5 text-muted">
-                                    <div class="mb-3 mt-2 fs-1 text-light"><i class="bi bi-funnel"></i></div>
-                                    <p class="mb-0 fw-bold fs-5">No matches found.</p>
-                                    <p class="small">Try adjusting your filters or clearing them entirely.</p>
-                                    <a href="manage_employees.php" class="btn btn-sm btn-outline-secondary mt-2">Clear Filters</a>
+                                <td colspan="10" class="text-center py-5">
+                                    <i class="bi bi-person-x fs-1 text-muted opacity-25"></i>
+                                    <p class="text-muted mt-2">No personnel found matching your filters.</p>
                                 </td>
                             </tr>
                         <?php endif; ?>

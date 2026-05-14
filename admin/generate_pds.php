@@ -266,7 +266,7 @@ for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
                 $pdf->Cell(0, 0, date('m/d/Y', strtotime($work['start_date'])));
             }
             
-            // end Date
+    
            // end Date
             if (!empty($work['end_date'])) {
                 $pdf->SetXY(46, $work_y); 
@@ -384,6 +384,5 @@ for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
 
 $filename = 'PDS_' . str_replace(' ', '_', $emp['last_name']) . '_' . $emp['first_name'] . '.pdf';
 
-// 'I' opens it in the browser tab. 
 $pdf->Output('I', $filename);
 ?>

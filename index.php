@@ -11,9 +11,10 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log In | JO/COS Profiling System</title>
+    <title>Log In | JO/COS Management System</title>
     <link href="assets/bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" href="assets/img/logo.png">
     
     <style>
         body {
@@ -87,7 +88,8 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
 
     <div class="glass-card">
         <div class="text-center mb-4 pb-3 border-bottom border-secondary border-opacity-10">
-            <h3 class="fw-bold mb-1" style="color: #0F172A; letter-spacing: -0.5px;">DTI Region IX</h3>
+            <img src="assets/img/logo.png" alt="DTI Logo" class="mb-3" style="width: 80px; height: auto;">
+            <!-- <h3 class="fw-bold mb-1" style="color: #0F172A; letter-spacing: -0.5px;">DTI Region IX</h3> -->
             <p class="mb-0 small text-muted fw-medium">Finance & Administrative Office</p>
         </div>
         

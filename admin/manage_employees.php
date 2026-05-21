@@ -84,7 +84,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
             INNER JOIN (SELECT employee_id, MAX(start_date) as max_start FROM employment_history GROUP BY employee_id) h2 
             ON h1.employee_id = h2.employee_id AND h1.start_date = h2.max_start
         ) h ON e.employee_id = h.employee_id 
-        WHERE e.is_deleted = 0 " . $filter_sql . " 
+        WHERE e.is_deleted = 0 AND e.is_archived = 0 " . $filter_sql . " 
         GROUP BY e.employee_id 
         ORDER BY e.last_name ASC
     ";
@@ -100,7 +100,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
     
     // column headers
     $headers = [
-        'OFFICE ID', 'STATUS', 'EMPLOYMENT TYPE', 'POSITION', 'DEPARTMENT/AGENCY', 'OFFICE ASSIGNMENT', 'START DATE', 'END DATE', 'MONTHLY SALARY',
+        'OFFICE ID', 'STATUS', 'EMPLOYMENT TYPE', 'POSITION', 'DEPARTMENT/AGENCY', 'OFFICE ASSIGNMENT', 'START DATE', 'END DATE', 'LENGTH OF SERVICE', 'MONTHLY SALARY',
         'LAST NAME', 'FIRST NAME', 'MIDDLE NAME', 'EXTENSION', 'SEX', 'DATE OF BIRTH', 'AGE', 'CIVIL STATUS', 'BLOOD TYPE',
         'CONTACT NUMBER', 'EMAIL', 'RESIDENTIAL ADDRESS', 'PERMANENT ADDRESS',
         'INDIGENOUS GROUP', 'PWD', 'SOLO PARENT',
@@ -131,6 +131,24 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
             $is_present = empty($row['end_date']) || $row['end_date'] === '0000-00-00';
             $is_active = (!empty($row['start_date']) && $today >= $row['start_date'] && ($is_present || $today <= $row['end_date']));
             $status = $is_active ? 'Active' : 'Inactive (Expired)';
+
+            // --- CSV LENGTH OF SERVICE MATH ---
+            $length_of_service = 'N/A';
+            if (!empty($row['start_date']) && $row['start_date'] !== '0000-00-00') {
+                $start_obj = new DateTime($row['start_date']);
+                $end_date_val = (empty($row['end_date']) || $row['end_date'] === '0000-00-00') ? date('Y-m-d') : $row['end_date'];
+                $end_obj = new DateTime($end_date_val);
+                
+                if ($start_obj <= $end_obj) {
+                    $diff = $start_obj->diff($end_obj);
+                    $y = $diff->y; $m = $diff->m; $d = $diff->d;
+                    $parts = [];
+                    if ($y > 0) $parts[] = $y . " Year" . ($y > 1 ? "s" : "");
+                    if ($m > 0) $parts[] = $m . " Month" . ($m > 1 ? "s" : "");
+                    if ($y == 0 && $m == 0 && $d > 0) $parts[] = $d . " Day" . ($d > 1 ? "s" : "");
+                    $length_of_service = empty($parts) ? "Less than a day" : implode(", ", $parts);
+                }
+            }
 
             // fetch IDs
             $gov_ids = ['TIN' => 'N/A', 'GSIS' => 'N/A', 'PhilHealth' => 'N/A', 'Pag-IBIG' => 'N/A'];
@@ -176,7 +194,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'csv') {
 
             // assemble the row
             $csv_row = [
-                $row['office_id'], $status, $row['employment_type'], $row['position_title'], $row['department_program'], $row['office_assignment'], $row['start_date'], $row['end_date'], $row['salary'],
+                $row['office_id'], $status, $row['employment_type'], $row['position_title'], $row['department_program'], $row['office_assignment'], $row['start_date'], $row['end_date'], $length_of_service, $row['salary'],
                 $row['last_name'], $row['first_name'], $row['middle_name'], $row['name_extension'], $row['sex'], $row['dob'], $age, $row['civil_status'], $row['blood_type'],
                 $row['contact_number'], $row['email'], $row['residential_address'], $row['permanent_address'],
                 ($row['is_indigenous'] ? $row['indigenous_group_name'] : 'No'),
@@ -205,7 +223,7 @@ $count_query = "SELECT COUNT(DISTINCT e.employee_id) as total
                     INNER JOIN (SELECT employee_id, MAX(start_date) as max_start FROM employment_history GROUP BY employee_id) h2 
                     ON h1.employee_id = h2.employee_id AND h1.start_date = h2.max_start
                 ) h ON e.employee_id = h.employee_id 
-                WHERE e.is_deleted = 0 " . $filter_sql;
+                WHERE e.is_deleted = 0 AND e.is_archived = 0" . $filter_sql;
 $count_result = $conn->query($count_query);
 $total_records = $count_result->fetch_assoc()['total'];
 $total_pages = ceil($total_records / $limit);
@@ -223,7 +241,7 @@ $query = "
         INNER JOIN (SELECT employee_id, MAX(start_date) as max_start FROM employment_history GROUP BY employee_id) h2 
         ON h1.employee_id = h2.employee_id AND h1.start_date = h2.max_start
     ) h ON e.employee_id = h.employee_id
-    WHERE e.is_deleted = 0 " . $filter_sql . "
+    WHERE e.is_deleted = 0 AND e.is_archived = 0" . $filter_sql . "
     GROUP BY e.employee_id 
     " . $order_sql . " 
     LIMIT $limit OFFSET $offset
@@ -425,7 +443,12 @@ $drafts_result = $conn->query($drafts_query);
                                         <div class="btn-group shadow-sm">
                                             <a href="view_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-primary fw-bold" title="View Profile">View</a>
                                             <a href="edit_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-success fw-bold" title="Edit Profile">Edit</a>
-                                            <button type="button" class="btn btn-sm btn-light border text-danger fw-bold" onclick="confirmDelete(<?php echo $row['employee_id']; ?>)" title="Delete Profile">Del</button>
+                                            
+                                            <a href="archive_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-warning fw-bold" title="Move to Archive" onclick="return confirm('Archive this employee? They will be moved out of the Master List.');">
+                                                <i class="bi bi-box-seam-fill"></i>
+                                            </a>
+                                            
+                                            <button type="button" class="btn btn-sm btn-light border text-danger fw-bold" onclick="confirmDelete(<?php echo $row['employee_id']; ?>)" title="Move to Recycle Bin">Del</button>
                                         </div>
                                     </td>
                                 </tr>
@@ -568,6 +591,11 @@ function confirmDelete(employeeId) {
     deleteModal.show();
 }
 
+const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('archive_success')) {
+        showToast('Employee successfully archived!', 'success');
+        window.history.replaceState(null, null, window.location.pathname);
+    }
 </script>
 
 <?php include '../includes/footer.php'; ?>

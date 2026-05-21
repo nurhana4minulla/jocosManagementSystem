@@ -349,35 +349,55 @@ $age = $now->diff($dob)->y;
                         <h6 class="fw-bold text-primary mb-3 border-bottom pb-2">Work Experience (DTI Contract)</h6>
                         <div class="table-responsive mb-4">
                             <table class="table table-bordered table-sm small">
-                                <thead class="bg-light"><tr><th>Inclusive Dates</th><th>Position Title</th><th>Department / Agency (Office Assignment)</th><th>Type</th><th>Salary</th></tr></thead>
+                                <thead class="bg-light"><tr><th>Inclusive Dates</th><th>Position Title</th><th>Department / Agency (Office Assignment)</th><th>Type</th><th>Length of Service</th><th>Salary</th></tr></thead>
                                 <tbody>
                                    <?php if(count($work) > 0): ?>
                                         <?php 
-                                        $today = date('Y-m-d');
-                                        foreach($work as $w): 
-                                            $is_present = empty($w['end_date']) || $w['end_date'] === '0000-00-00';
-                                            
-                                            // Highlight as current if started and (end date is empty OR end date is future/today)
-                                            $is_current = (!empty($w['start_date']) && $today >= $w['start_date'] && ($is_present || $today <= $w['end_date']));
-                                            
-                                            // Format the end date or beautifully show "Present"
-                                            $display_end = !$is_present ? date('M d, Y', strtotime($w['end_date'])) : '<span class="text-success fw-bold">Present</span>';
-                                        ?>
-                                            <tr class="<?php echo $is_current ? 'table-primary bg-opacity-10' : ''; ?>">
-                                                <td class="text-nowrap">
-                                                    <?php echo date('M d, Y', strtotime($w['start_date'])) . ' - ' . $display_end; ?>
-                                                </td>
-                                                <td class="fw-bold">
-                                                    <?php echo htmlspecialchars($w['position_title']); ?>
-                                                    <?php if ($is_current): ?>
-                                                        <br><span class="badge bg-primary mt-1" style="font-size: 0.65rem;">Current Contract</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td><?php echo htmlspecialchars($w['department_program']); ?><br><small class="text-muted">(<?php echo htmlspecialchars($w['office_assignment']); ?>)</small></td>
-                                                <td><?php echo htmlspecialchars($w['employment_type']); ?></td>
-                                                <td><?php echo !empty($w['salary']) ? '₱'.number_format($w['salary'], 2) : 'N/A'; ?></td>
-                                            </tr>
-                                        <?php endforeach; ?>
+                                            $today = date('Y-m-d');
+                                            foreach($work as $w): 
+                                                $is_present = empty($w['end_date']) || $w['end_date'] === '0000-00-00';
+                                                
+                                                // Highlight as current if started and (end date is empty OR end date is future/today)
+                                                $is_current = (!empty($w['start_date']) && $today >= $w['start_date'] && ($is_present || $today <= $w['end_date']));
+                                                
+                                                // Format the end date or beautifully show "Present"
+                                                $display_end = !$is_present ? date('M d, Y', strtotime($w['end_date'])) : '<span class="text-success fw-bold">Present</span>';
+
+                                                // --- LENGTH OF SERVICE COMPUTATION ---
+                                                $length_of_service = 'N/A';
+                                                if (!empty($w['start_date']) && $w['start_date'] !== '0000-00-00') {
+                                                    $start_date_obj = new DateTime($w['start_date']);
+                                                    $end_date_obj = $is_present ? new DateTime() : new DateTime($w['end_date']);
+                                                    
+                                                    if ($start_date_obj <= $end_date_obj) {
+                                                        $diff = $start_date_obj->diff($end_date_obj);
+                                                        $y = $diff->y; $m = $diff->m; $d = $diff->d;
+                                                        $parts = [];
+                                                        if ($y > 0) $parts[] = $y . " Year" . ($y > 1 ? "s" : "");
+                                                        if ($m > 0) $parts[] = $m . " Month" . ($m > 1 ? "s" : "");
+                                                        if ($y == 0 && $m == 0 && $d > 0) $parts[] = $d . " Day" . ($d > 1 ? "s" : "");
+                                                        $length_of_service = empty($parts) ? "Less than a day" : implode(", ", $parts);
+                                                    }
+                                                }
+                                            ?>
+                                                <tr class="<?php echo $is_current ? 'table-primary bg-opacity-10' : ''; ?>">
+                                                    <td class="text-nowrap">
+                                                        <?php echo date('M d, Y', strtotime($w['start_date'])) . ' - ' . $display_end; ?>
+                                                    </td>
+                                                    <td class="fw-bold">
+                                                        <?php echo htmlspecialchars($w['position_title']); ?>
+                                                        <?php if ($is_current): ?>
+                                                            <br><span class="badge bg-primary mt-1" style="font-size: 0.65rem;">Current Contract</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td><?php echo htmlspecialchars($w['department_program']); ?><br><small class="text-muted">(<?php echo htmlspecialchars($w['office_assignment']); ?>)</small></td>
+                                                    <td><?php echo htmlspecialchars($w['employment_type']); ?></td>
+                                                    
+                                                    <td><span class="text-dark fw-bold bg-light px-2 py-1 rounded border"><?php echo $length_of_service; ?></span></td>
+                                                    
+                                                    <td><?php echo !empty($w['salary']) ? '₱'.number_format($w['salary'], 2) : 'N/A'; ?></td>
+                                                </tr>
+                                            <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr><td colspan="5" class="text-center text-muted py-3">No work experience listed.</td></tr>
                                     <?php endif; ?>

@@ -8,15 +8,24 @@ include '../includes/header.php';
 $db = new Database();
 $conn = $db->getConnection();
 
+// --- NEW SORTING LOGIC ---
+$sort = isset($_GET['sort']) ? $_GET['sort'] : 'latest'; // Default to latest deleted
+
+$order_sql = "ORDER BY e.deleted_at DESC, e.employee_id DESC"; // Fallback to ID if dates match
+if ($sort === 'name_asc')  { $order_sql = "ORDER BY e.last_name ASC"; }
+if ($sort === 'name_desc') { $order_sql = "ORDER BY e.last_name DESC"; }
+if ($sort === 'office_id') { $order_sql = "ORDER BY e.office_id ASC"; }
+if ($sort === 'dept')      { $order_sql = "ORDER BY h.department_program ASC"; }
+
 $query = "
     SELECT 
-        e.employee_id, e.office_id, e.first_name, e.last_name, e.photo_path,
+        e.employee_id, e.office_id, e.first_name, e.last_name, e.photo_path, e.deleted_at,
         h.department_program
     FROM employees e
     LEFT JOIN employment_history h ON e.employee_id = h.employee_id
     WHERE e.is_deleted = 1 
     GROUP BY e.employee_id 
-    ORDER BY e.last_name ASC
+    $order_sql
 ";
 $result = $conn->query($query);
 ?>
@@ -37,6 +46,21 @@ $result = $conn->query($query);
                 <i class="bi bi-arrow-left me-1"></i> Back to Master List
             </a>
         </div>
+    </div>
+
+    <div class="d-flex justify-content-end mb-3 page-transition" style="animation-delay: 0.05s;">
+        <form method="GET" class="d-flex align-items-center bg-white px-3 py-2 rounded shadow-sm border">
+            <label class="text-muted small fw-bold me-2 mb-0 text-nowrap" style="letter-spacing: 0.5px;">
+                <i class="bi bi-sort-down text-danger"></i> SORT BY:
+            </label>
+            <select name="sort" class="form-select form-select-sm border-0 fw-bold" style="width: auto; cursor: pointer; background-color: #f8fafc; color: #0F172A; box-shadow: none;" onchange="this.form.submit()">
+                <option value="latest" <?php if($sort == 'latest') echo 'selected'; ?>>Latest Deleted</option>
+                <option value="name_asc" <?php if($sort == 'name_asc') echo 'selected'; ?>>Name (A to Z)</option>
+                <option value="name_desc" <?php if($sort == 'name_desc') echo 'selected'; ?>>Name (Z to A)</option>
+                <option value="office_id" <?php if($sort == 'office_id') echo 'selected'; ?>>Office ID</option>
+                <option value="dept" <?php if($sort == 'dept') echo 'selected'; ?>>Department</option>
+            </select>
+        </form>
     </div>
 
     <div class="card shadow-sm border-0 page-transition" style="animation-delay: 0.1s; border-radius: 12px; overflow: hidden;">

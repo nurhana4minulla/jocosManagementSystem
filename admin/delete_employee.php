@@ -9,7 +9,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $emp_id = intval($_GET['id']);
 
     // SOFT DELETE
-    $stmt = $conn->prepare("UPDATE employees SET is_deleted = 1 WHERE employee_id = ?");
+    $stmt = $conn->prepare("UPDATE employees SET is_deleted = 1, deleted_at = NOW() WHERE employee_id = ?");
     $stmt->bind_param("i", $emp_id);
     
     if ($stmt->execute()) {

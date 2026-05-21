@@ -387,6 +387,9 @@
             <a href="manage_employees.php" class="sidebar-link <?php echo ($currentPage == 'manage_employees.php' || $currentPage == 'view_employee.php' || $currentPage == 'edit_employee.php' || $currentPage == 'recycle_bin.php') ? 'active' : ''; ?>">
                 <i class="bi bi-people-fill"></i> <span class="sidebar-text">Manage</span>
             </a>
+            <a href="archive_list.php" class="sidebar-link <?php echo ($currentPage == 'archive_list.php') ? 'active' : ''; ?>">
+                <i class="bi bi-archive-fill"></i> <span class="sidebar-text">Archives</span>
+            </a>
             
             </div>
 

@@ -444,9 +444,9 @@ $drafts_result = $conn->query($drafts_query);
                                             <a href="view_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-primary fw-bold" title="View Profile">View</a>
                                             <a href="edit_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-success fw-bold" title="Edit Profile">Edit</a>
                                             
-                                            <a href="archive_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-warning fw-bold" title="Move to Archive" onclick="return confirm('Archive this employee? They will be moved out of the Master List.');">
-                                                <i class="bi bi-box-seam-fill"></i>
-                                            </a>
+                                            <button type="button" class="btn btn-sm btn-light border text-warning fw-bold" onclick="confirmArchive(<?php echo $row['employee_id']; ?>)" title="Move to Archive">
+                                            <i class="bi bi-box-seam-fill"></i>
+                                            </button>
                                             
                                             <button type="button" class="btn btn-sm btn-light border text-danger fw-bold" onclick="confirmDelete(<?php echo $row['employee_id']; ?>)" title="Move to Recycle Bin">Del</button>
                                         </div>
@@ -568,6 +568,28 @@ $drafts_result = $conn->query($drafts_query);
         </div>
     </div>
 
+    <!-- Archive Modal -->
+<div class="modal fade" id="archiveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 380px;">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-body p-4 text-center">
+                <div class="mb-3 d-flex justify-content-center">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2);">
+                        <i class="bi bi-box-seam-fill text-warning fs-4"></i>
+                    </div>
+                </div>
+                <h6 class="fw-bold mb-2" style="color: #0F172A; font-size: 1.1rem;">Move to Archive?</h6>
+                <p class="text-muted small mb-4">This profile will be moved out of the active Master List and safely vaulted. You can restore it later.</p>
+                
+                <div class="d-flex gap-2 w-100">
+                    <button type="button" class="btn btn-light fw-bold flex-fill shadow-sm" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+                    <a href="#" id="confirmArchiveBtn" class="btn btn-warning fw-bold flex-fill text-dark shadow-sm" style="border-radius: 8px;">Yes, Archive</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -576,10 +598,16 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.appendChild(draftsModal); 
     }
     
-    // Fix Delete Modal
+    
     const deleteModal = document.getElementById('deleteModal');
     if (deleteModal) {
         document.body.appendChild(deleteModal); 
+    }
+
+
+    const archiveModal = document.getElementById('archiveModal');
+    if (archiveModal) {
+        document.body.appendChild(archiveModal); 
     }
 });
 
@@ -589,6 +617,14 @@ function confirmDelete(employeeId) {
     
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
     deleteModal.show();
+}
+
+function confirmArchive(employeeId) {
+    const confirmBtn = document.getElementById('confirmArchiveBtn');
+    confirmBtn.href = "archive_employee.php?id=" + employeeId;
+    
+    const modal = new bootstrap.Modal(document.getElementById('archiveModal'));
+    modal.show();
 }
 
 const urlParams = new URLSearchParams(window.location.search);

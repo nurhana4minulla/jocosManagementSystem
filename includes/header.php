@@ -275,7 +275,7 @@
             }
             
             #sidebar.active {
-                left: 0 !important; /* Pulls it perfectly onto the screen */
+                left: 0 !important; 
                 box-shadow: 4px 0 24px rgba(15, 23, 42, 0.15) !important;
             }
             
@@ -352,6 +352,13 @@
                     </a>
                 </li>
                 
+                <li>
+                    <a class="dropdown-item py-2" href="#" data-bs-toggle="modal" data-bs-target="#aboutModal">
+                        <i class="bi bi-info-circle me-3 text-muted"></i> 
+                        <span>About System</span>
+                    </a>
+                </li>
+                
                 <li><hr class="dropdown-divider mx-2 opacity-50"></li>
                 
                 <li>
@@ -391,6 +398,10 @@
                 <i class="bi bi-archive-fill"></i> <span class="sidebar-text">Archives</span>
             </a>
             
+            <div class="mt-auto p-3 text-center sidebar-text" style="font-size: 0.55rem; color: rgba(255,255,255,0.4); line-height: 1.5; border-top: 1px solid rgba(255, 255, 255, 0.08); white-space: normal;">
+                &copy; 2026 JO & COS Management System<br>
+                Western Mindanao State University<br>College of Computing Studies
+            </div>
             </div>
 
             <!-- <div class="mobile-overlay" id="mobileOverlay" onclick="toggleSidebar()"></div> -->
@@ -411,6 +422,56 @@
                 <div class="d-flex gap-2 w-100">
                     <button type="button" class="btn btn-light fw-bold flex-fill shadow-sm" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
                     <a href="logout.php" class="btn fw-bold flex-fill text-white shadow-sm" style="border-radius: 8px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);">Yes, Log Out</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="aboutModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 16px;">
+            <div class="modal-header border-0 pb-0 justify-content-center position-relative">
+                <h5 class="modal-title fw-bold text-dark w-100 text-center" style="font-size: 1.25rem;">About the System</h5>
+                <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close" style="right: 20px; top: 20px;"></button>
+            </div>
+            <div class="modal-body p-4 p-md-5 pt-3">
+                <div class="text-center mb-4">
+                    <div class="d-flex justify-content-center align-items-center gap-4 mb-4 flex-wrap">
+                        <img src="../assets/img/logo.png" alt="DTI Logo" style="height: 65px; object-fit: contain;">
+                        <img src="../assets/img/wmsu.png" alt="WMSU Logo" style="height: 65px; object-fit: contain;">
+                        <img src="../assets/img/ccs.png" alt="CCS Logo" style="height: 65px; object-fit: contain;">
+                        <img src="../assets/img/cs.png" alt="CS Logo" style="height: 65px; object-fit: contain;">
+                    </div>
+                    <p class="text-muted small px-lg-4" style="line-height: 1.6;">
+                        The JO & COS Management System is designed to streamline administrative workflows, ensuring efficient management and tracking of Job Order and Contract of Service personnel records.
+                    </p>
+                </div>
+                
+                <div class="bg-light rounded-4 p-4 shadow-sm">
+                    <h6 class="fw-bold mb-4 text-uppercase text-center" style="letter-spacing: 0.5px; font-size: 0.85rem; color: #3b82f6;">Development & Advisory Team</h6>
+                    
+                    <div class="mb-4 text-center">
+                        <div class="fw-bold text-dark" style="font-size: 1.05rem;">ASSO. PROF. SALIMAR B. TAHIL</div>
+                        <div class="text-muted fw-medium" style="font-size: 0.85rem;">Project Manager</div>
+                        <div class="text-muted" style="font-size: 0.8rem;">ACTINT 122 Adviser, College of Computing Studies<br>Western Mindanao State University</div>
+                    </div>
+                    
+                    <div class="mb-4 text-center">
+                        <div class="fw-bold text-dark" style="font-size: 1.05rem;">SHARON B. BAZAN-MICUBO</div>
+                        <div class="text-muted fw-medium" style="font-size: 0.85rem;">HTE Coordinator & Project Adviser</div>
+                        <div class="text-muted" style="font-size: 0.8rem;">Administrative Officer V (HRMO III)<br>DTI – IX Regional Office IX</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="fw-bold text-dark" style="font-size: 1.05rem;">NURHANA C. AMINULLA</div>
+                        <div class="text-muted fw-medium" style="font-size: 0.85rem;">System Developer / Author</div>
+                        <div class="text-muted" style="font-size: 0.8rem;">Student Intern, BS in Computer Science, 2nd yr<br>Western Mindanao State University</div>
+                    </div>
+                </div>
+                
+                <div class="text-center mt-4">
+                    <small class="text-muted" style="font-size: 0.75rem;">&copy; 2026 JO & COS Management System. All Rights Reserved.</small>
                 </div>
             </div>
         </div>

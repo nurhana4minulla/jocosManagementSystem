@@ -3,6 +3,11 @@ session_start();
 if (!isset($_SESSION['admin_logged_in'])) { header("Location: ../index.php"); exit(); }
 
 require_once '../includes/database.php';
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 include '../includes/header.php'; 
 
 $db = new Database();
@@ -98,7 +103,7 @@ $result = $conn->query($query);
                                     </td>
                                     <td class="text-end pe-4 py-3">
                                         <div class="btn-group shadow-sm" style="border-radius: 6px;">
-                                            <a href="restore_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-success fw-bold px-3" title="Restore to Master List">
+                                            <a href="restore_employee.php?id=<?php echo $row['employee_id']; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>" class="btn btn-sm btn-light border text-success fw-bold px-3" title="Restore to Master List">
                                                 <i class="bi bi-arrow-counterclockwise me-1"></i> Restore
                                             </a>
                                             <button type="button" class="btn btn-sm btn-light border text-danger fw-bold" onclick="confirmPermanentDelete(<?php echo $row['employee_id']; ?>)" title="Permanently Delete">
@@ -168,7 +173,7 @@ $result = $conn->query($query);
     // 3. Function to open the permanent delete modal
     function confirmPermanentDelete(employeeId) {
         const confirmBtn = document.getElementById('confirmPermDeleteBtn');
-        confirmBtn.href = "delete_permanent.php?id=" + employeeId;
+        confirmBtn.href = "delete_permanent.php?id=" + employeeId + "&csrf_token=<?php echo $_SESSION['csrf_token']; ?>";
         
         const deleteModal = new bootstrap.Modal(document.getElementById('permanentDeleteModal'));
         deleteModal.show();

@@ -6,6 +6,10 @@ require_once '../includes/database.php';
 $db = new Database();
 $conn = $db->getConnection();
 
+if (!isset($_GET['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_GET['csrf_token'])) {
+    die("Invalid CSRF token.");
+}
+
 if (isset($_GET['id'])) {
     $emp_id = intval($_GET['id']);
     

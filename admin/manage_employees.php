@@ -4,6 +4,10 @@ if (!isset($_SESSION['admin_logged_in'])) { header("Location: ../index.php"); ex
 
 require_once '../includes/database.php';
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $db = new Database();
 $conn = $db->getConnection();
 
@@ -547,7 +551,7 @@ $drafts_result = $conn->query($drafts_query);
                                             <td class="py-3 text-muted small"><i class="bi bi-clock me-1"></i> <?php echo $d['date_saved']; ?></td>
                                             <td class="text-end pe-4 py-3">
                                                 <a href="add_employee.php?draft_id=<?php echo $d['draft_id']; ?>" class="btn btn-sm btn-success fw-bold me-1">Resume</a>
-                                                <a href="delete_draft.php?id=<?php echo $d['draft_id']; ?>" class="btn btn-sm btn-outline-danger fw-bold" onclick="return confirm('Delete this draft permanently?');">Discard</a>
+                                                <a href="delete_draft.php?id=<?php echo $d['draft_id']; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>" class="btn btn-sm btn-outline-danger fw-bold" onclick="return confirm('Delete this draft permanently?');">Discard</a>
                                             </td>
                                         </tr>
                                     <?php endwhile; ?>
@@ -613,7 +617,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
 function confirmDelete(employeeId) {
     const confirmBtn = document.getElementById('confirmDeleteBtn');
-    confirmBtn.href = "delete_employee.php?id=" + employeeId;
+    confirmBtn.href = "delete_employee.php?id=" + employeeId + "&csrf_token=<?php echo $_SESSION['csrf_token']; ?>";
     
     const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
     deleteModal.show();
@@ -621,7 +625,7 @@ function confirmDelete(employeeId) {
 
 function confirmArchive(employeeId) {
     const confirmBtn = document.getElementById('confirmArchiveBtn');
-    confirmBtn.href = "archive_employee.php?id=" + employeeId;
+    confirmBtn.href = "archive_employee.php?id=" + employeeId + "&csrf_token=<?php echo $_SESSION['csrf_token']; ?>";
     
     const modal = new bootstrap.Modal(document.getElementById('archiveModal'));
     modal.show();

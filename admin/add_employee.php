@@ -7,6 +7,10 @@ require_once '../includes/database.php';
 $db = new Database();
 $conn = $db->getConnection();
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $draft_json = 'null';
 $draft_id = 0;
 if (isset($_GET['draft_id'])) {
@@ -52,6 +56,7 @@ if (isset($_GET['draft_id'])) {
                     <div id="ajaxErrorMessage" class="alert alert-danger d-none shadow-sm mb-4" role="alert"></div>
 
                     <form action="save_employee.php" method="POST" id="pdsForm" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                         
                         <div class="form-step" id="S1">
                             <div class="row g-3 mb-4">

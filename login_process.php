@@ -4,6 +4,11 @@ require_once 'includes/database.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
+    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        header("Location: index.php?error=1");
+        exit();
+    }
+    
     $db = new Database();
     $conn = $db->getConnection();
 
@@ -22,13 +27,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $db_hash = $row['password_hash'];
         $is_valid = false;
 
-        if (strlen($db_hash) === 32 && md5($password) === $db_hash) {
-            $is_valid = true; 
-        } else if (password_verify($password, $db_hash)) {
+        if (password_verify($password, $db_hash)) {
             $is_valid = true; 
         }
         
         if ($is_valid) {
+            session_regenerate_id(true);
             
             $_SESSION['admin_logged_in'] = true;
             $_SESSION['admin_id'] = $row['admin_id'];

@@ -8,6 +8,10 @@ include '../includes/header.php';
 $db = new Database();
 $conn = $db->getConnection();
 
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $emp_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
 // fetch main info
@@ -79,6 +83,7 @@ $current_work = !empty($work) ? $work[0] : null;
                     </div>
 
                     <form action="update_employee.php" method="POST" id="pdsForm" enctype="multipart/form-data">
+                        <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                         <input type="hidden" name="employee_id" value="<?php echo $emp_id; ?>">
 
                         <div class="form-step" id="S1">

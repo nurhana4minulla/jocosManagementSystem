@@ -3,6 +3,11 @@ session_start();
 if (!isset($_SESSION['admin_logged_in'])) { header("Location: ../index.php"); exit(); }
 
 require_once '../includes/database.php';
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 include '../includes/header.php'; 
 
 $db = new Database();
@@ -81,7 +86,7 @@ $result = $conn->query($query);
                                             <a href="view_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-primary fw-bold px-3" title="View Profile">
                                                 <i class="bi bi-eye-fill"></i>
                                             </a>
-                                            <a href="unarchive_employee.php?id=<?php echo $row['employee_id']; ?>" class="btn btn-sm btn-light border text-success fw-bold px-3" title="Restore to Master List">
+                                            <a href="unarchive_employee.php?id=<?php echo $row['employee_id']; ?>&csrf_token=<?php echo $_SESSION['csrf_token']; ?>" class="btn btn-sm btn-light border text-success fw-bold px-3" title="Restore to Master List">
                                                 <i class="bi bi-arrow-90deg-left me-1"></i> Unarchive
                                             </a>
                                             <button type="button" class="btn btn-sm btn-light border text-danger fw-bold px-3" onclick="confirmDelete(<?php echo $row['employee_id']; ?>)" title="Move to Recycle Bin">
@@ -142,7 +147,7 @@ $result = $conn->query($query);
 
     function confirmDelete(employeeId) {
         const confirmBtn = document.getElementById('confirmDeleteBtn');
-        confirmBtn.href = "delete_employee.php?id=" + employeeId;
+        confirmBtn.href = "delete_employee.php?id=" + employeeId + "&csrf_token=<?php echo $_SESSION['csrf_token']; ?>";
         const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
         modal.show();
     }

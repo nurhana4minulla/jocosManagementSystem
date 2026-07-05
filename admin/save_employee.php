@@ -21,6 +21,11 @@ if (!is_numeric($_POST['contact_number'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
+    if (!isset($_POST['csrf_token']) || !isset($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+        echo json_encode(['success' => false, 'message' => 'Invalid CSRF token. Please refresh the page and try again.']);
+        exit();
+    }
+
     // Sanitize 
     foreach ($_POST as $key => $value) {
         if (is_string($value)) {
@@ -63,12 +68,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // photo upload
         $photo_path = NULL;
         if(isset($_FILES['photo']) && $_FILES['photo']['error'] == 0) {
-            $ext = pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION);
-            $new_filename = preg_replace('/[^A-Za-z0-9\-]/', '', $_POST['office_id']) . '_' . time() . '.' . $ext;
-            $target_dir = "../assets/img/uploads/";
-            if(!is_dir($target_dir)) mkdir($target_dir, 0777, true);
-            if(move_uploaded_file($_FILES['photo']['tmp_name'], $target_dir . $new_filename)) {
-                $photo_path = "assets/img/uploads/" . $new_filename;
+            $ext = strtolower(pathinfo($_FILES['photo']['name'], PATHINFO_EXTENSION));
+            $allowed_ext = ['jpg', 'jpeg', 'png'];
+            
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mime = finfo_file($finfo, $_FILES['photo']['tmp_name']);
+            finfo_close($finfo);
+            $allowed_mime = ['image/jpeg', 'image/png'];
+
+            if (in_array($ext, $allowed_ext) && in_array($mime, $allowed_mime) && $_FILES['photo']['size'] <= 2097152) {
+                $new_filename = preg_replace('/[^A-Za-z0-9\-]/', '', $_POST['office_id']) . '_' . time() . '.' . $ext;
+                $target_dir = "../assets/img/uploads/";
+                if(!is_dir($target_dir)) mkdir($target_dir, 0777, true);
+                if(move_uploaded_file($_FILES['photo']['tmp_name'], $target_dir . $new_filename)) {
+                    $photo_path = "assets/img/uploads/" . $new_filename;
+                }
+            } else {
+                throw new Exception("Invalid photo. Only JPG/PNG images under 2MB are allowed.");
             }
         }
 

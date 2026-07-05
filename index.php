@@ -5,6 +5,10 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
     header("Location: admin/dashboard.php");
     exit();
 }
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -103,6 +107,7 @@ if (isset($_SESSION['admin_logged_in']) && $_SESSION['admin_logged_in'] === true
             <?php endif; ?>
 
             <form action="login_process.php" method="POST">
+                <input type="hidden" name="csrf_token" value="<?php echo $_SESSION['csrf_token']; ?>">
                 <div class="mb-3">
                     <label for="username" class="form-label small fw-bold text-secondary">Username</label>
                     <input type="text" class="form-control glass-input shadow-sm" id="username" name="username" placeholder="Enter your username" required autocomplete="off">
